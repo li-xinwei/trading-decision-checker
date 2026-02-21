@@ -13,7 +13,7 @@ export function Header({ onReset, onToggleHistory, showHistory, hasProgress }: H
       <div className="header-left">
         <BarChart3 size={28} className="header-icon" />
         <div>
-          <h1 className="header-title">交易决策检查</h1>
+          <h1 className="header-title">Trading Portal</h1>
           <p className="header-subtitle">系统化开单前检查清单</p>
         </div>
       </div>

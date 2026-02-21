@@ -61,7 +61,7 @@ function App() {
 
         {!result && !currentNode && (
           <div className="welcome-card">
-            <h2>欢迎使用交易决策检查系统</h2>
+            <h2>欢迎使用 Trading Portal</h2>
             <p>点击开始进行开单前的系统性检查</p>
             <button className="start-btn" onClick={reset}>
               开始检查
