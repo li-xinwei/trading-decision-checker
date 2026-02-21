@@ -102,7 +102,8 @@ describe('tradingDecisionTree data integrity', () => {
 
   it('happy path reaches a GO result', () => {
     const happyPath = [
-      'long', 'yes', 'yes', 'yes', 'yes', 'yes', '3+', 'yes', 'clear', 'calm', 'yes',
+      'long', 'no_conflict', 'done', 'yes', 'yes', 'yes', 'yes',
+      'yes', '3+', 'yes', 'reasonable', 'clear', 'clear', 'calm', 'yes',
     ];
     let currentId = rootNodeId;
     for (const value of happyPath) {
@@ -118,7 +119,34 @@ describe('tradingDecisionTree data integrity', () => {
 
   it('counter-trend rejection reaches a NO-GO result', () => {
     let currentId = rootNodeId;
-    const path = ['long', 'no', 'no'];
+    const path = ['long', 'no_conflict', 'done', 'no', 'no'];
+    for (const value of path) {
+      const node = nodes[currentId];
+      const option = node.options.find((o) => o.value === value);
+      currentId = option!.nextNodeId!;
+    }
+    expect(results[currentId]).toBeDefined();
+    expect(results[currentId].type).toBe('no-go');
+  });
+
+  it('no prep reaches a NO-GO result', () => {
+    let currentId = rootNodeId;
+    const path = ['short', 'no_conflict', 'no'];
+    for (const value of path) {
+      const node = nodes[currentId];
+      const option = node.options.find((o) => o.value === value);
+      currentId = option!.nextNodeId!;
+    }
+    expect(results[currentId]).toBeDefined();
+    expect(results[currentId].type).toBe('no-go');
+  });
+
+  it('revenge trading reaches a NO-GO result', () => {
+    const path = [
+      'long', 'no_conflict', 'done', 'yes', 'yes', 'yes', 'yes',
+      'yes', '3+', 'yes', 'reasonable', 'clear', 'clear', 'revenge',
+    ];
+    let currentId = rootNodeId;
     for (const value of path) {
       const node = nodes[currentId];
       const option = node.options.find((o) => o.value === value);
