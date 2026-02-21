@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { tradingDecisionTree } from './tradingTree';
 
-describe('tradingDecisionTree data integrity', () => {
+describe('tradingDecisionTree V3 data integrity', () => {
   const { nodes, results, rootNodeId } = tradingDecisionTree;
 
   it('has a valid root node', () => {
@@ -100,13 +100,15 @@ describe('tradingDecisionTree data integrity', () => {
     expect(types).toContain('no-go');
   });
 
-  it('happy path reaches a GO result', () => {
-    const happyPath = [
-      'long', 'no_conflict', 'done', 'yes', 'yes', 'yes', 'yes',
-      'yes', '3+', 'yes', 'reasonable', 'clear', 'clear', 'calm', 'yes',
-    ];
+  it('root node has 7 setup options', () => {
+    const root = nodes[rootNodeId];
+    expect(root.options.length).toBe(7);
+  });
+
+  it('pullback shallow path reaches GO', () => {
+    const path = ['pullback', 'yes', 'twopush', 'yes', 'yes', 'shallow'];
     let currentId = rootNodeId;
-    for (const value of happyPath) {
+    for (const value of path) {
       const node = nodes[currentId];
       expect(node, `Expected node "${currentId}" to exist`).toBeDefined();
       const option = node.options.find((o) => o.value === value);
@@ -117,9 +119,21 @@ describe('tradingDecisionTree data integrity', () => {
     expect(results[currentId].type).toBe('go');
   });
 
-  it('counter-trend rejection reaches a NO-GO result', () => {
+  it('MTR reversal path reaches GO', () => {
+    const path = ['mtr', 'yes', 'yes', 'spike_channel'];
     let currentId = rootNodeId;
-    const path = ['long', 'no_conflict', 'done', 'no', 'no'];
+    for (const value of path) {
+      const node = nodes[currentId];
+      const option = node.options.find((o) => o.value === value);
+      currentId = option!.nextNodeId!;
+    }
+    expect(results[currentId]).toBeDefined();
+    expect(results[currentId].type).toBe('go');
+  });
+
+  it('no trend reaches NO-GO', () => {
+    const path = ['pullback', 'no'];
+    let currentId = rootNodeId;
     for (const value of path) {
       const node = nodes[currentId];
       const option = node.options.find((o) => o.value === value);
@@ -129,23 +143,20 @@ describe('tradingDecisionTree data integrity', () => {
     expect(results[currentId].type).toBe('no-go');
   });
 
-  it('no prep reaches a NO-GO result', () => {
+  it('struct reversal full path reaches GO', () => {
+    const path = ['struct_reversal', 'yes', 'yes', 'yes'];
     let currentId = rootNodeId;
-    const path = ['short', 'no_conflict', 'no'];
     for (const value of path) {
       const node = nodes[currentId];
       const option = node.options.find((o) => o.value === value);
       currentId = option!.nextNodeId!;
     }
     expect(results[currentId]).toBeDefined();
-    expect(results[currentId].type).toBe('no-go');
+    expect(results[currentId].type).toBe('go');
   });
 
-  it('revenge trading reaches a NO-GO result', () => {
-    const path = [
-      'long', 'no_conflict', 'done', 'yes', 'yes', 'yes', 'yes',
-      'yes', '3+', 'yes', 'reasonable', 'clear', 'clear', 'revenge',
-    ];
+  it('range fade BF path reaches GO', () => {
+    const path = ['range_fade', 'yes', 'range', 'yes', 'bf'];
     let currentId = rootNodeId;
     for (const value of path) {
       const node = nodes[currentId];
@@ -153,6 +164,6 @@ describe('tradingDecisionTree data integrity', () => {
       currentId = option!.nextNodeId!;
     }
     expect(results[currentId]).toBeDefined();
-    expect(results[currentId].type).toBe('no-go');
+    expect(results[currentId].type).toBe('go');
   });
 });
