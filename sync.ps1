@@ -54,12 +54,42 @@ if (-not $status) {
     exit 0
 }
 
-# 4. Commit
+# 4. Analyze changes and build commit message
 git add -A
+
+$added    = @(git diff --cached --diff-filter=A --name-only)
+$modified = @(git diff --cached --diff-filter=M --name-only)
+$deleted  = @(git diff --cached --diff-filter=D --name-only)
+$renamed  = @(git diff --cached --diff-filter=R --name-only)
+
+Write-Log "Changes detected:" "Yellow"
+foreach ($f in $added)    { Write-Log "  + $f" "Green" }
+foreach ($f in $modified) { Write-Log "  ~ $f" "Yellow" }
+foreach ($f in $deleted)  { Write-Log "  - $f" "Red" }
+foreach ($f in $renamed)  { Write-Log "  > $f" "Cyan" }
+
 if (-not $Message) {
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm"
-    $changedFiles = (git diff --cached --name-only) -join ", "
-    $Message = "sync: $timestamp | $changedFiles"
+    $parts = @()
+    if ($added.Count -gt 0) {
+        $names = ($added | ForEach-Object { Split-Path $_ -Leaf }) -join ", "
+        $parts += "add $names"
+    }
+    if ($modified.Count -gt 0) {
+        $names = ($modified | ForEach-Object { Split-Path $_ -Leaf }) -join ", "
+        $parts += "update $names"
+    }
+    if ($deleted.Count -gt 0) {
+        $names = ($deleted | ForEach-Object { Split-Path $_ -Leaf }) -join ", "
+        $parts += "remove $names"
+    }
+    if ($renamed.Count -gt 0) {
+        $names = ($renamed | ForEach-Object { Split-Path $_ -Leaf }) -join ", "
+        $parts += "rename $names"
+    }
+
+    $summary = $parts -join "; "
+    $totalFiles = $added.Count + $modified.Count + $deleted.Count + $renamed.Count
+    $Message = "$summary ($totalFiles file$(if ($totalFiles -ne 1) {'s'}))"
 }
 
 git commit -m $Message 2>&1 | Out-Null
@@ -67,7 +97,9 @@ if ($LASTEXITCODE -ne 0) {
     Write-Log "Commit failed." "Red"
     exit 1
 }
-Write-Log "Committed: $Message" "Green"
+
+$commitHash = git rev-parse --short HEAD
+Write-Log "Committed [$commitHash]: $Message" "Green"
 
 # 5. Push
 $pushOutput = git push origin main 2>&1
@@ -76,4 +108,4 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-Write-Log "Push OK. Sync complete!" "Green"
+Write-Log "Pushed $commitHash to origin/main. Sync complete!" "Green"
