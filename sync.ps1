@@ -1,62 +1,79 @@
 param(
-    [string]$Message = ""
+    [string]$Message = "",
+    [switch]$Silent
 )
 
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
 
-Write-Host "`n=== Trading Portal Sync ===" -ForegroundColor Cyan
+$LogFile = Join-Path $PSScriptRoot "sync.log"
 
-# 1. Pull latest changes
-Write-Host "`n[1/4] Pulling latest changes..." -ForegroundColor Yellow
-try {
-    git pull --rebase origin main 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "Pull failed. You may have merge conflicts to resolve." -ForegroundColor Red
-        exit 1
+function Write-Log {
+    param([string]$Text, [string]$Color = "White")
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $line = "[$timestamp] $Text"
+    Add-Content -Path $LogFile -Value $line -Encoding UTF8
+    if (-not $Silent) {
+        Write-Host $Text -ForegroundColor $Color
     }
-    Write-Host "Pull complete." -ForegroundColor Green
-} catch {
-    Write-Host "Pull failed: $_" -ForegroundColor Red
-    exit 1
 }
 
-# 2. Check for changes
-Write-Host "`n[2/4] Checking for changes..." -ForegroundColor Yellow
-$status = git status --porcelain
-if (-not $status) {
-    Write-Host "No local changes to sync. Already up to date!" -ForegroundColor Green
+# Keep log file under 500 lines
+if (Test-Path $LogFile) {
+    $lines = Get-Content $LogFile -Encoding UTF8
+    if ($lines.Count -gt 500) {
+        $lines[-200..-1] | Set-Content $LogFile -Encoding UTF8
+    }
+}
+
+Write-Log "=== Sync Start ===" "Cyan"
+
+# 1. Check network / remote reachability
+try {
+    git ls-remote --exit-code origin HEAD 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "unreachable" }
+} catch {
+    Write-Log "Remote unreachable, skipping sync." "Yellow"
     exit 0
 }
 
-Write-Host "Changed files:" -ForegroundColor White
-git status --short
-Write-Host ""
+# 2. Pull
+Write-Log "Pulling..." "Yellow"
+$pullOutput = git pull --rebase origin main 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Log "Pull failed: $pullOutput" "Red"
+    git rebase --abort 2>&1 | Out-Null
+    exit 1
+}
+Write-Log "Pull OK." "Green"
 
-# 3. Stage and commit
-Write-Host "[3/4] Committing changes..." -ForegroundColor Yellow
+# 3. Check for local changes
+$status = git status --porcelain
+if (-not $status) {
+    Write-Log "No changes. Done." "Green"
+    exit 0
+}
+
+# 4. Commit
 git add -A
-
 if (-not $Message) {
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm"
     $changedFiles = (git diff --cached --name-only) -join ", "
     $Message = "sync: $timestamp | $changedFiles"
 }
 
-git commit -m $Message 2>&1
+git commit -m $Message 2>&1 | Out-Null
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "Commit failed." -ForegroundColor Red
+    Write-Log "Commit failed." "Red"
     exit 1
 }
-Write-Host "Committed." -ForegroundColor Green
+Write-Log "Committed: $Message" "Green"
 
-# 4. Push
-Write-Host "`n[4/4] Pushing to remote..." -ForegroundColor Yellow
-git push origin main 2>&1
+# 5. Push
+$pushOutput = git push origin main 2>&1
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "Push failed." -ForegroundColor Red
+    Write-Log "Push failed: $pushOutput" "Red"
     exit 1
 }
 
-Write-Host "`nSync complete!" -ForegroundColor Green
-Write-Host "=========================`n" -ForegroundColor Cyan
+Write-Log "Push OK. Sync complete!" "Green"
