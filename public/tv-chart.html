@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden; }
+  .tradingview-widget-container { height: 100%; width: 100%; }
+  .tradingview-widget-container__widget { height: 100%; width: 100%; }
+</style>
+</head>
+<body>
+<div class="tradingview-widget-container">
+  <div class="tradingview-widget-container__widget"></div>
+  <script type="text/javascript" src="https://s.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+  {
+    "autosize": true,
+    "symbol": "CME_MINI:MES1!",
+    "interval": "5",
+    "timezone": "America/New_York",
+    "theme": "dark",
+    "style": "1",
+    "locale": "zh_CN",
+    "allow_symbol_change": false,
+    "calendar": false,
+    "hide_top_toolbar": false,
+    "hide_legend": false,
+    "save_image": false,
+    "studies": ["MAExp@tv-basicstudies"],
+    "backgroundColor": "rgba(0, 0, 0, 1)",
+    "gridColor": "rgba(118, 118, 128, 0.06)",
+    "support_host": "https://www.tradingview.com"
+  }
+  </script>
+</div>
+</body>
+</html>
