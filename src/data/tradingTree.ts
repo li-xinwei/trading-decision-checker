@@ -29,7 +29,6 @@ export const tradingDecisionTree: DecisionTreeConfig = {
         { label: '结构+磁体反转setup', value: 'struct_reversal', nextNodeId: 'sr_pattern', icon: '🔀' },
         { label: 'MTR反转setup', value: 'mtr', nextNodeId: 'mtr_conditions', icon: '↩️' },
         { label: '突破setup', value: 'breakout', nextNodeId: 'bo_type', icon: '💥' },
-        { label: '震荡区间/通道突破', value: 'range_breakout', nextNodeId: 'rb_structure', icon: '📈' },
         { label: '区间/宽通道setup', value: 'range_fade', nextNodeId: 'rf_bg', icon: '↔️' },
       ],
     },
@@ -223,6 +222,7 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       options: [
         { label: '开盘跳空高开/低开', value: 'gap', nextNodeId: 'bo_gap_resistance' },
         { label: '盘中趋势K线突破', value: 'trend_bar', nextNodeId: 'bo_trend_bar' },
+        { label: '震荡区间/通道突破', value: 'range_breakout', nextNodeId: 'rb_structure' },
       ],
     },
     bo_gap_resistance: {
@@ -267,12 +267,12 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       ],
     },
 
-    // ==================== 震荡区间/通道突破 ====================
+    // ==================== 突破setup - 震荡区间/通道突破 ====================
     rb_structure: {
       id: 'rb_structure',
       question: '是否存在明显的震荡区间或通道？',
       description: '区间有明显且平行的上下沿，或宽通道有明显的通道线和趋势线',
-      category: '震荡区间/通道突破',
+      category: '突破setup',
       options: [
         { label: '是，结构明显', value: 'yes', nextNodeId: 'rb_breakout_quality' },
         { label: '结构不清晰', value: 'no', nextNodeId: 'result_no_go_no_range' },
@@ -282,7 +282,7 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       id: 'rb_breakout_quality',
       question: 'K线突破区间/通道边缘的方式？',
       description: '评估突破的质量和后续表现',
-      category: '震荡区间/通道突破',
+      category: '突破setup',
       options: [
         { label: '成功突破边缘，有不错的跟随', value: 'clean', nextNodeId: 'td_rb_direct' },
         { label: '突破后回测，再次突破', value: 'retest', nextNodeId: 'td_rb_retest' },

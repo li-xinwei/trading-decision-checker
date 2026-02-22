@@ -117,8 +117,8 @@ describe('tradingDecisionTree V3 data integrity', () => {
     expect(results[option!.nextNodeId!].type).toBe('no-go');
   });
 
-  it('setup selection has 7 options', () => {
-    expect(nodes['choose_setup'].options.length).toBe(7);
+  it('setup selection has 6 options', () => {
+    expect(nodes['choose_setup'].options.length).toBe(6);
   });
 
   it('pullback shallow path reaches GO', () => {
