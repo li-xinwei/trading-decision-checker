@@ -50,7 +50,6 @@ export function useDecisionTree(config: DecisionTreeConfig) {
   }, []);
 
   const currentNode = config.nodes[currentNodeId] || null;
-  const totalSteps = Object.keys(config.nodes).length;
   const currentStep = decisions.length + 1;
 
   const progress = Math.min((decisions.length / 10) * 100, 95);
@@ -139,7 +138,6 @@ export function useDecisionTree(config: DecisionTreeConfig) {
     result,
     history,
     progress,
-    totalSteps,
     currentStep,
     pair,
     setPair,

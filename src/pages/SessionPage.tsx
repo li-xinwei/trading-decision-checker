@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, LogOut, StopCircle, ClipboardCheck } from 'lucide-react';
 import { useLogout } from '../hooks/useAuth';
@@ -15,10 +15,9 @@ export function SessionPage() {
   const [endNotes, setEndNotes] = useState('');
   const [showEndConfirm, setShowEndConfirm] = useState(false);
 
-  const sessionId = useMemo(
-    () => (id === 'new' ? `session_${Date.now()}` : id!),
-    [id]
-  );
+  // eslint-disable-next-line react-hooks/purity -- ID generation is intentionally one-time impure
+  const generatedId = useRef(id === 'new' ? `session_${Date.now()}` : id!);
+  const sessionId = id === 'new' ? generatedId.current : id!;
 
   const {
     session,

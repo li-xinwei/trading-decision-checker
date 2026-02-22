@@ -16,15 +16,17 @@ function formatDuration(ms: number): string {
 }
 
 export function SessionTimer({ startedAt, ended, endedAt }: SessionTimerProps) {
-  const [now, setNow] = useState(Date.now());
+  const [liveElapsed, setLiveElapsed] = useState(0);
 
   useEffect(() => {
     if (ended) return;
-    const interval = setInterval(() => setNow(Date.now()), 1000);
+    const interval = setInterval(() => {
+      setLiveElapsed(Date.now() - startedAt);
+    }, 1000);
     return () => clearInterval(interval);
-  }, [ended]);
+  }, [startedAt, ended]);
 
-  const elapsed = (ended && endedAt ? endedAt : now) - startedAt;
+  const elapsed = ended && endedAt ? endedAt - startedAt : liveElapsed;
 
   return (
     <div className={`session-timer ${ended ? 'ended' : 'active'}`}>

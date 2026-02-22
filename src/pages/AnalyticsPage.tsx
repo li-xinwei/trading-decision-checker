@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, LogOut } from 'lucide-react';
 import {
@@ -37,6 +37,7 @@ export function AnalyticsPage() {
   const [trades, setTrades] = useState<Trade[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
+  const [cutoff, setCutoff] = useState(0);
 
   useEffect(() => {
     fetchAllTrades().then((t) => {
@@ -45,15 +46,21 @@ export function AnalyticsPage() {
     });
   }, []);
 
-  const filteredTrades = useMemo(() => {
+  const applyFilter = useCallback((f: TimeFilter) => {
+    setTimeFilter(f);
     const now = Date.now();
+    if (f === 'week') setCutoff(now - 7 * 86400000);
+    else if (f === 'month') setCutoff(now - 30 * 86400000);
+    else setCutoff(0);
+  }, []);
+
+  const filteredTrades = useMemo(() => {
     return trades.filter((t) => {
       if (t.status !== 'closed') return false;
-      if (timeFilter === 'week') return now - t.openedAt < 7 * 86400000;
-      if (timeFilter === 'month') return now - t.openedAt < 30 * 86400000;
+      if (cutoff > 0) return t.openedAt >= cutoff;
       return true;
     });
-  }, [trades, timeFilter]);
+  }, [trades, cutoff]);
 
   const setupStats = useMemo(() => {
     const map = new Map<
@@ -87,17 +94,17 @@ export function AnalyticsPage() {
 
   const cumulativeRR = useMemo(() => {
     const sorted = [...filteredTrades].sort((a, b) => a.openedAt - b.openedAt);
-    let cumRR = 0;
-    return sorted.map((t) => {
-      cumRR += t.pnlRR || 0;
-      return {
+    return sorted.reduce<Array<{ date: string; rr: number }>>((acc, t) => {
+      const prev = acc.length > 0 ? acc[acc.length - 1].rr : 0;
+      acc.push({
         date: new Date(t.openedAt).toLocaleDateString('zh-CN', {
           month: 'short',
           day: 'numeric',
         }),
-        rr: +cumRR.toFixed(2),
-      };
-    });
+        rr: +(prev + (t.pnlRR || 0)).toFixed(2),
+      });
+      return acc;
+    }, []);
   }, [filteredTrades]);
 
   const totalWins = filteredTrades.filter((t) => t.result === 'win').length;
@@ -131,7 +138,7 @@ export function AnalyticsPage() {
             <button
               key={f}
               className={`analytics-filter-btn ${timeFilter === f ? 'active' : ''}`}
-              onClick={() => setTimeFilter(f)}
+              onClick={() => applyFilter(f)}
             >
               {f === 'week' ? '本周' : f === 'month' ? '本月' : '全部'}
             </button>

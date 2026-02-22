@@ -14,20 +14,26 @@ export function useSession(sessionId: string) {
   const [trades, setTrades] = useState<Trade[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    const s = await fetchSessionById(sessionId);
-    setSession(s);
-    if (s) {
-      const t = await fetchTradesBySession(sessionId);
-      setTrades(t);
-    }
-    setLoading(false);
-  }, [sessionId]);
-
   useEffect(() => {
-    load();
-  }, [load]);
+    let cancelled = false;
+
+    fetchSessionById(sessionId).then((s) => {
+      if (cancelled) return;
+      setSession(s);
+      if (s) {
+        fetchTradesBySession(sessionId).then((t) => {
+          if (!cancelled) {
+            setTrades(t);
+            setLoading(false);
+          }
+        });
+      } else {
+        setLoading(false);
+      }
+    });
+
+    return () => { cancelled = true; };
+  }, [sessionId]);
 
   const startSession = useCallback(async () => {
     const newSession: TradingSession = {

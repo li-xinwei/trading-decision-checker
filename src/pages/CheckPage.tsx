@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronLeft, History, RotateCcw, LogOut } from 'lucide-react';
 import { ProgressBar } from '../components/ProgressBar';
@@ -33,7 +33,7 @@ export function CheckPage() {
   const [showHistory, setShowHistory] = useState(false);
   const [tradeCreated, setTradeCreated] = useState(false);
 
-  const handleGoResult = useCallback(async () => {
+  useEffect(() => {
     if (!result || result.type !== 'go' || !sessionId || tradeCreated) return;
 
     const setupDecision = decisions.find((d) => d.nodeId === 'choose_setup');
@@ -43,7 +43,7 @@ export function CheckPage() {
       id: `trade_${Date.now()}`,
       sessionId,
       setupType: setupDecision?.answer || 'unknown',
-      direction: directionDecision?.answer === 'long' ? '做多' : '做空',
+      direction: directionDecision?.answer?.includes('做多') ? '做多' : '做空',
       entryPlan: result.executionPlan?.entry,
       stopLoss: result.executionPlan?.stopLoss,
       takeProfit: result.executionPlan?.takeProfit,
@@ -51,13 +51,10 @@ export function CheckPage() {
       openedAt: Date.now(),
     };
 
-    await createTrade(trade);
-    setTradeCreated(true);
+    createTrade(trade).then(() => {
+      setTradeCreated(true);
+    });
   }, [result, sessionId, decisions, tradeCreated]);
-
-  useEffect(() => {
-    handleGoResult();
-  }, [handleGoResult]);
 
   const backPath = sessionId ? `/session/${sessionId}` : '/';
 
