@@ -690,6 +690,8 @@
 
 .trend-up { color: var(--go-color); }
 .trend-down { color: var(--nogo-color); }
+.trend-nogo { color: var(--nogo-color); }
+.trend-caution { color: var(--caution-color); }
 
 .history-direction {
   font-size: 14px;

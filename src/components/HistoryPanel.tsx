@@ -1,4 +1,4 @@
-import { Trash2, Clock, TrendingUp, TrendingDown } from 'lucide-react';
+import { Trash2, Clock, TrendingUp, TrendingDown, XCircle, AlertTriangle } from 'lucide-react';
 import type { CheckSession } from '../types/decisionTree';
 
 interface HistoryPanelProps {
@@ -60,18 +60,19 @@ export function HistoryPanel({ sessions, onClear, onClose }: HistoryPanelProps) 
               <div key={session.id} className="history-item">
                 <div className="history-item-header">
                   <div className="history-item-left">
-                    {session.tradeDirection?.includes('多') || session.tradeDirection?.includes('Long') ? (
+                    {session.result?.type === 'no-go' ? (
+                      <XCircle size={16} className="trend-nogo" />
+                    ) : session.result?.type === 'caution' ? (
+                      <AlertTriangle size={16} className="trend-caution" />
+                    ) : session.tradeDirection?.includes('多') || session.tradeDirection?.includes('Long') ? (
                       <TrendingUp size={16} className="trend-up" />
                     ) : session.tradeDirection?.includes('空') || session.tradeDirection?.includes('Short') ? (
                       <TrendingDown size={16} className="trend-down" />
                     ) : null}
                     <span className="history-direction">
-                      {session.tradeDirection?.includes('多') || session.tradeDirection?.includes('Long')
-                        ? '做多'
-                        : session.tradeDirection?.includes('空') || session.tradeDirection?.includes('Short')
-                        ? '做空'
-                        : session.tradeDirection}
-                      {session.pair ? ` · ${session.pair}` : ''}
+                      {session.result?.type === 'no-go' || session.result?.type === 'caution'
+                        ? session.result.title.replace(/^[🚫⚠️✅]\s*/, '')
+                        : `${session.tradeDirection?.includes('多') || session.tradeDirection?.includes('Long') ? '做多' : '做空'}${session.pair ? ` · ${session.pair}` : ''}`}
                     </span>
                   </div>
                   <div className="history-item-right">
