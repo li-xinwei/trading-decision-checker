@@ -364,44 +364,50 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       type: 'go',
       title: '✅ 回调setup - 浅回调入场',
       message: '浅回调（≤50%），用突破单顺势入场。',
-      suggestions: [
-        '止损：趋势起点',
-        '止盈：趋势极值',
-        '使用突破单在信号K极值外入场',
-      ],
+      suggestions: [],
+      executionPlan: {
+        entry: '突破单挂在信号K极值外',
+        stopLoss: '趋势起点',
+        takeProfit: '趋势极值',
+      },
     },
     result_go_pb_deep: {
       id: 'result_go_pb_deep',
       type: 'go',
       title: '✅ 回调setup - 深回调入场',
       message: '深回调（>50%），风险回报调整，用突破单入场。',
-      suggestions: [
-        '止损：回调极值外',
-        '止盈：1RR / 2RR',
-        '深回调风险较大，注意仓位控制',
-      ],
+      suggestions: [],
+      executionPlan: {
+        entry: '突破单挂在信号K极值外',
+        stopLoss: '回调极值外',
+        takeProfit: '1RR / 2RR',
+        notes: '深回调风险较大，注意控制仓位',
+      },
     },
     result_go_pb_tr: {
       id: 'result_go_pb_tr',
       type: 'go',
       title: '✅ 回调setup - Trading Range回调入场',
       message: '在区间上下沿出现趋势继续信号K，极值外入场。',
-      suggestions: [
-        '止损：趋势起点',
-        '止盈：Trading Range等距测量',
-        '在大顺势K线创出新高/低后的极值外挂突破单',
-      ],
+      suggestions: [],
+      executionPlan: {
+        entry: '大顺势K线创出新高/低后，突破单挂在极值外',
+        stopLoss: '趋势起点',
+        takeProfit: 'Trading Range等距测量',
+      },
     },
     result_go_pb_50: {
       id: 'result_go_pb_50',
       type: 'go',
       title: '✅ 回调setup - 50%PB共振入场',
       message: '50%回调位与EMA20/重要磁体共振，突破单顺1入场。',
-      suggestions: [
-        '止损：趋势起点',
-        '止盈：趋势极值',
-        '共振增强了该位置的支撑/阻力效果',
-      ],
+      suggestions: [],
+      executionPlan: {
+        entry: '突破单顺1入场',
+        stopLoss: '趋势起点',
+        takeProfit: '趋势极值',
+        notes: 'EMA20/磁体共振增强了该位置的支撑/阻力',
+      },
     },
 
     // 20均线缺口 GO
@@ -409,12 +415,13 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       id: 'result_go_ma20',
       type: 'go',
       title: '✅ 20均线缺口setup - 入场',
-      message: '价格乖离MA20达20-30根K线，出现高1/低1信号，用突破单做顺势交易。',
-      suggestions: [
-        '止损：信号K极值外',
-        '止盈：原趋势极值',
-        '做顺势方向的交易',
-      ],
+      message: '价格乖离MA20达20-30根K线，出现高1/低1信号，做顺势交易。',
+      suggestions: [],
+      executionPlan: {
+        entry: '突破单在高1/低1入场',
+        stopLoss: '信号K极值外',
+        takeProfit: '原趋势极值',
+      },
     },
 
     // 结构+磁体反转 GO
@@ -422,12 +429,13 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       id: 'result_go_sr',
       type: 'go',
       title: '✅ 结构+磁体反转setup - 入场',
-      message: '有明显反转结构 + 价格在关键反转区域 + 二次反转信号确认，入场。',
-      suggestions: [
-        '止损：反转信号K极值外',
-        '止盈：中轴 / 趋势50% / EMA20 分批止盈',
-        '等待二次确认后再入场，不要抢第一次信号',
-      ],
+      message: '有明显反转结构 + 关键反转区域 + 二次反转信号确认。',
+      suggestions: [],
+      executionPlan: {
+        entry: '等待二次反转信号后入场',
+        stopLoss: '反转信号K极值外',
+        takeProfit: '中轴 / 趋势50% / EMA20 分批止盈',
+      },
     },
 
     // MTR反转 GO
@@ -436,12 +444,13 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       type: 'go',
       title: '✅ MTR反转setup - 入场',
       message: 'MTR反转条件成立，趋势由急速转为通道，在趋势极值处做反转交易。',
-      suggestions: [
-        '止损：趋势极值外',
-        '止盈：通道起点处 / AB=CD / 趋势线',
-        '将反转方向作为新的顺势方向',
-        '价格预计在通道起点和原趋势极值区间内震荡',
-      ],
+      suggestions: [],
+      executionPlan: {
+        entry: '在趋势极值处做反转交易，将反转方向作为新顺势方向',
+        stopLoss: '趋势极值外',
+        takeProfit: '通道起点处 / AB=CD / 趋势线',
+        notes: '价格预计在通道起点和原趋势极值区间内震荡',
+      },
     },
 
     // 突破 GO
@@ -449,34 +458,38 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       id: 'result_go_bo_gap',
       type: 'go',
       title: '✅ 突破setup - 跳空突破入场',
-      message: '开盘跳空 + 无密集阻力 + 第一根大顺势秃头K线，在顺势K线收盘市价入场。',
-      suggestions: [
-        '止损：趋势起点外',
-        '止盈：自起点K线实体等距测量',
-        '第一根K线上下秃头，质量最佳',
-      ],
+      message: '开盘跳空 + 无密集阻力 + 第一根大顺势秃头K线。',
+      suggestions: [],
+      executionPlan: {
+        entry: '在顺势K线收盘市价入场',
+        stopLoss: '趋势起点外',
+        takeProfit: '自起点K线实体等距测量',
+        notes: '第一根K线上下秃头，质量最佳',
+      },
     },
     result_go_bo_gap_confirmed: {
       id: 'result_go_bo_gap_confirmed',
       type: 'go',
       title: '✅ 突破setup - 跳空二次确认入场',
-      message: '开盘跳空，第一根有逆势影线但第二根顺势K确认方向，入场。',
-      suggestions: [
-        '止损：趋势起点外',
-        '止盈：自起点K线实体等距测量',
-        '第二根K线确认了方向，可以入场',
-      ],
+      message: '开盘跳空，第一根有逆势影线但第二根顺势K确认方向。',
+      suggestions: [],
+      executionPlan: {
+        entry: '第二根顺势K线确认后市价入场',
+        stopLoss: '趋势起点外',
+        takeProfit: '自起点K线实体等距测量',
+      },
     },
     result_go_bo_trend: {
       id: 'result_go_bo_trend',
       type: 'go',
       title: '✅ 突破setup - 趋势K线突破入场',
-      message: '盘中大顺势秃头K线突破关键位，在后续顺势K线市价入场。',
-      suggestions: [
-        '止损：趋势起点外',
-        '止盈：K线实体等距测量 / 微型缺口等距测量',
-        '确认突破K线实体大且秃头',
-      ],
+      message: '盘中大顺势秃头K线突破关键位。',
+      suggestions: [],
+      executionPlan: {
+        entry: '在后续顺势秃头K线市价入场',
+        stopLoss: '趋势起点外',
+        takeProfit: 'K线实体等距测量 / 微型缺口等距测量',
+      },
     },
 
     // 震荡区间/通道突破 GO
@@ -484,32 +497,38 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       id: 'result_go_rb_direct',
       type: 'go',
       title: '✅ 区间/通道突破 - 直接突破入场',
-      message: 'K线成功突破区间/通道边缘并有不错的跟随，在顺势K线收盘市价入场。',
-      suggestions: [
-        '止损：这一腿起点外',
-        '止盈：震荡区间/通道线到突破点等距测量',
-      ],
+      message: 'K线成功突破区间/通道边缘并有不错的跟随。',
+      suggestions: [],
+      executionPlan: {
+        entry: '在顺势K线收盘市价入场',
+        stopLoss: '这一腿起点外',
+        takeProfit: '震荡区间/通道线到突破点等距测量',
+      },
     },
     result_go_rb_retest: {
       id: 'result_go_rb_retest',
       type: 'go',
       title: '✅ 区间/通道突破 - 回测后入场',
-      message: '突破后回测边缘再次突破，在第二次突破的信号K极值外挂突破单入场。',
-      suggestions: [
-        '止损：测试点极值外',
-        '止盈：震荡区间/通道线到测试点等距测量',
-      ],
+      message: '突破后回测边缘再次突破。',
+      suggestions: [],
+      executionPlan: {
+        entry: '在第二次突破的信号K极值外挂突破单',
+        stopLoss: '测试点极值外',
+        takeProfit: '震荡区间/通道线到测试点等距测量',
+      },
     },
     result_go_rb_bff: {
       id: 'result_go_rb_bff',
       type: 'go',
       title: '✅ 区间/通道突破 - 突破失败的失败入场',
       message: '突破失败后再次反向突破（BFF），二次突破动能通常更强。',
-      suggestions: [
-        '止损：测试点极值外',
-        '止盈：区间/通道等距测量',
-        'BFF信号通常可靠性较高',
-      ],
+      suggestions: [],
+      executionPlan: {
+        entry: '在BFF信号K极值外挂突破单',
+        stopLoss: '测试点极值外',
+        takeProfit: '区间/通道等距测量',
+        notes: 'BFF信号可靠性较高',
+      },
     },
 
     // 区间/宽通道 GO
@@ -517,34 +536,37 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       id: 'result_go_rf_range_bf',
       type: 'go',
       title: '✅ 区间setup - 突破失败做反向',
-      message: '区间边缘出现突破失败迹象（十字星/长影线），在突破失败K极值外用突破单入场。',
-      suggestions: [
-        '止损：区间边缘极值外',
-        '止盈：区间中轴',
-        '做反向交易，从边缘向中轴方向',
-      ],
+      message: '区间边缘出现突破失败迹象（十字星/长影线），做反向交易。',
+      suggestions: [],
+      executionPlan: {
+        entry: '在突破失败K极值外用突破单入场（反向）',
+        stopLoss: '区间边缘极值外',
+        takeProfit: '区间中轴',
+      },
     },
     result_go_rf_range_trend: {
       id: 'result_go_rf_range_trend',
       type: 'go',
       title: '✅ 区间setup - 强趋势K测试边缘',
-      message: '强趋势K线测试区间边缘，等待H2/L2在边缘用突破单入场。',
-      suggestions: [
-        '止损：区间边缘极值外',
-        '止盈：区间中轴',
-        '等待H2/L2确认后再入场',
-      ],
+      message: '强趋势K线测试区间边缘，等待确认后反向入场。',
+      suggestions: [],
+      executionPlan: {
+        entry: '等待H2/L2在边缘用突破单入场',
+        stopLoss: '区间边缘极值外',
+        takeProfit: '区间中轴',
+      },
     },
     result_go_rf_channel: {
       id: 'result_go_rf_channel',
       type: 'go',
       title: '✅ 宽通道setup - 边缘反转入场',
-      message: '通道边缘出现突破失败迹象或反向大趋势K线，在极值外用突破单入场。',
-      suggestions: [
-        '止损：通道边线极值外',
-        '止盈：上一条腿极值',
-        '在通道内做反向交易',
-      ],
+      message: '通道边缘出现突破失败迹象或反向大趋势K线。',
+      suggestions: [],
+      executionPlan: {
+        entry: '在突破失败K/反向趋势K极值外用突破单入场',
+        stopLoss: '通道边线极值外',
+        takeProfit: '上一条腿极值',
+      },
     },
 
     // ==================== CAUTION 结果 ====================

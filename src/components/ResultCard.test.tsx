@@ -9,7 +9,13 @@ const goResult: ResultNode = {
   type: 'go',
   title: 'All clear!',
   message: 'You may proceed with this trade.',
-  suggestions: ['Set stop loss', 'Log the trade'],
+  suggestions: [],
+  executionPlan: {
+    entry: '突破单挂在信号K极值外',
+    stopLoss: '趋势起点',
+    takeProfit: '趋势极值',
+    notes: '注意仓位控制',
+  },
 };
 
 const noGoResult: ResultNode = {
@@ -41,22 +47,34 @@ describe('ResultCard', () => {
     expect(screen.getByText('Do not trade')).toBeInTheDocument();
   });
 
-  it('renders suggestions', () => {
+  it('renders execution plan for GO results', () => {
     render(
       <ResultCard result={goResult} decisions={mockDecisions} onReset={vi.fn()} onBack={vi.fn()} />
     );
-    expect(screen.getByText('Set stop loss')).toBeInTheDocument();
-    expect(screen.getByText('Log the trade')).toBeInTheDocument();
+    expect(screen.getByText('执行方案')).toBeInTheDocument();
+    expect(screen.getByText('突破单挂在信号K极值外')).toBeInTheDocument();
+    expect(screen.getByText('趋势起点')).toBeInTheDocument();
+    expect(screen.getByText('趋势极值')).toBeInTheDocument();
+    expect(screen.getByText('注意仓位控制')).toBeInTheDocument();
   });
 
-  it('renders decision summary', () => {
+  it('renders suggestions for non-GO results', () => {
+    render(
+      <ResultCard result={noGoResult} decisions={mockDecisions} onReset={vi.fn()} onBack={vi.fn()} />
+    );
+    expect(screen.getByText('Wait for better setup')).toBeInTheDocument();
+  });
+
+  it('decision path is collapsed by default and expandable', async () => {
+    const user = userEvent.setup();
     render(
       <ResultCard result={goResult} decisions={mockDecisions} onReset={vi.fn()} onBack={vi.fn()} />
     );
+    expect(screen.queryByText('Direction?')).not.toBeInTheDocument();
+
+    await user.click(screen.getByText(/决策路径/));
     expect(screen.getByText('Direction?')).toBeInTheDocument();
     expect(screen.getByText('Long')).toBeInTheDocument();
-    expect(screen.getByText('Trend?')).toBeInTheDocument();
-    expect(screen.getByText('Yes')).toBeInTheDocument();
   });
 
   it('calls onReset when new check button clicked', async () => {

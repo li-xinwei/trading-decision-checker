@@ -13,12 +13,20 @@ export interface TreeNode {
   options: TreeOption[];
 }
 
+export interface ExecutionPlan {
+  entry: string;
+  stopLoss: string;
+  takeProfit: string;
+  notes?: string;
+}
+
 export interface ResultNode {
   id: string;
   type: 'go' | 'caution' | 'no-go';
   title: string;
   message: string;
   suggestions: string[];
+  executionPlan?: ExecutionPlan;
 }
 
 export interface DecisionTreeConfig {

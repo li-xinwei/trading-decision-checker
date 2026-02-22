@@ -87,9 +87,14 @@ describe('tradingDecisionTree V3 data integrity', () => {
     }
   });
 
-  it('every result has at least one suggestion', () => {
+  it('every result has suggestions or execution plan', () => {
     for (const result of Object.values(results)) {
-      expect(result.suggestions.length).toBeGreaterThanOrEqual(1);
+      const hasSuggestions = result.suggestions.length > 0;
+      const hasExecutionPlan = !!result.executionPlan;
+      expect(
+        hasSuggestions || hasExecutionPlan,
+        `Result "${result.id}" has neither suggestions nor execution plan`
+      ).toBe(true);
     }
   });
 

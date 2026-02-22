@@ -373,9 +373,104 @@
   color: var(--text-muted);
 }
 
+/* ==================== Execution Plan ==================== */
+.execution-plan {
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid var(--go-border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.execution-plan-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--go-color);
+  margin-bottom: 20px;
+}
+
+.execution-plan-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.execution-item {
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+}
+
+.execution-item-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.execution-entry .execution-item-label { color: var(--accent-blue); }
+.execution-sl .execution-item-label { color: var(--nogo-color); }
+.execution-tp .execution-item-label { color: var(--go-color); }
+
+.execution-item-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.execution-notes {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-color);
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* ==================== Decision Summary Toggle ==================== */
+.decision-summary-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  margin-bottom: 4px;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid var(--border-color);
+  transition: color 0.2s;
+}
+
+.decision-summary-toggle:hover {
+  color: var(--text-primary);
+}
+
+.toggle-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.decision-summary-toggle:hover .toggle-text {
+  color: var(--text-secondary);
+}
+
 /* ==================== Decision Summary ==================== */
 .decision-summary {
   margin-bottom: 24px;
+}
+
+.decision-summary.compact {
+  margin-top: 12px;
+  margin-bottom: 16px;
 }
 
 .summary-title {
