@@ -71,7 +71,7 @@ export function HistoryPanel({ sessions, onClear, onClose }: HistoryPanelProps) 
                     ) : null}
                     <span className="history-direction">
                       {session.result?.type === 'no-go' || session.result?.type === 'caution'
-                        ? session.result.title.replace(/^[🚫⚠️✅]\s*/, '')
+                        ? session.result.title.replace(/^.*?(?=[\u4e00-\u9fffA-Za-z])/, '')
                         : `${session.tradeDirection?.includes('多') || session.tradeDirection?.includes('Long') ? '做多' : '做空'}${session.pair ? ` · ${session.pair}` : ''}`}
                     </span>
                   </div>
