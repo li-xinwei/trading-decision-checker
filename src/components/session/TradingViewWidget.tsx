@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useMemo } from 'react';
 
-const WIDGET_CONFIG = {
+const CHART_CONFIG = {
   autosize: true,
   symbol: 'CME_MINI:MES1!',
   interval: '5',
@@ -19,42 +19,23 @@ const WIDGET_CONFIG = {
   support_host: 'https://www.tradingview.com',
 };
 
-const SCRIPT_SRC =
-  'https://s.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
-
 export function TradingViewWidget() {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    container.innerHTML = '';
-
-    const widgetDiv = document.createElement('div');
-    widgetDiv.className = 'tradingview-widget-container__widget';
-    widgetDiv.style.height = '100%';
-    widgetDiv.style.width = '100%';
-    container.appendChild(widgetDiv);
-
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = SCRIPT_SRC;
-    script.async = true;
-    script.textContent = JSON.stringify(WIDGET_CONFIG);
-    container.appendChild(script);
-
-    return () => {
-      container.innerHTML = '';
-    };
-  }, []);
+  const src = useMemo(
+    () =>
+      `https://s.tradingview.com/embed-widget/advanced-chart/?locale=zh_CN#${encodeURIComponent(JSON.stringify(CHART_CONFIG))}`,
+    []
+  );
 
   return (
     <div className="tv-widget">
-      <div
-        className="tv-chart-container tradingview-widget-container"
-        ref={containerRef}
-      />
+      <div className="tv-chart-container">
+        <iframe
+          src={src}
+          style={{ width: '100%', height: '100%', border: 'none' }}
+          allow="fullscreen"
+          title="MES Chart"
+        />
+      </div>
     </div>
   );
 }

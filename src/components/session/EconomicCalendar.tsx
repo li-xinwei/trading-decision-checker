@@ -1,39 +1,34 @@
+import { useMemo } from 'react';
 import { Calendar } from 'lucide-react';
 
-const CALENDAR_URL =
-  'https://sslecal2.investing.com?' +
-  'columns=exc_flags,exc_currency,exc_importance,exc_actual,exc_forecast,exc_previous&' +
-  'features=datepicker,timezone&' +
-  'countries=5&' +
-  'calType=day&' +
-  'timeZone=55&' +
-  'lang=12';
+const CALENDAR_CONFIG = {
+  colorTheme: 'dark',
+  isTransparent: true,
+  width: '100%',
+  height: '100%',
+  locale: 'zh_CN',
+  importanceFilter: '0,1',
+  countryFilter: 'us',
+};
 
 export function EconomicCalendar() {
+  const src = useMemo(
+    () =>
+      `https://s.tradingview.com/embed-widget/economic-calendar/?locale=zh_CN#${encodeURIComponent(JSON.stringify(CALENDAR_CONFIG))}`,
+    []
+  );
+
   return (
     <div className="econ-calendar">
       <div className="econ-header">
         <Calendar size={14} />
         <span>今日美元数据</span>
-        <a
-          href="https://www.investing.com/economic-calendar/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="econ-link"
-        >
-          Investing.com
-        </a>
       </div>
       <div className="econ-iframe-wrap">
         <iframe
-          src={CALENDAR_URL}
-          style={{
-            width: '100%',
-            height: '100%',
-            border: 'none',
-          }}
+          src={src}
+          style={{ width: '100%', height: '100%', border: 'none' }}
           title="Economic Calendar"
-          allowTransparency
         />
       </div>
     </div>

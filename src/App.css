@@ -1512,38 +1512,23 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--bg-card);
+  background: #000;
   border-radius: var(--radius-md);
   overflow: hidden;
 }
 
-.tv-header {
-  padding: 8px 12px;
-  border-bottom: 0.5px solid var(--border-color);
-}
-
-.tv-symbol-select {
-  padding: 6px 12px;
-  background: rgba(118, 118, 128, 0.12);
-  border: none;
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  outline: none;
-}
-
 .tv-chart-container {
   flex: 1;
-  min-height: 300px;
+  min-height: 360px;
 }
 
 /* ==================== Economic Calendar ==================== */
 .econ-calendar {
   background: var(--bg-card);
   border-radius: var(--radius-sm);
-  padding: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
 }
 
 .econ-header {
@@ -1553,63 +1538,14 @@
   font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
-  margin-bottom: 8px;
-}
-
-.econ-link {
-  margin-left: auto;
-  font-size: 10px;
-  color: var(--text-muted);
-  text-decoration: none;
-  opacity: 0.6;
-}
-
-.econ-link:hover {
-  opacity: 1;
+  margin-bottom: 6px;
 }
 
 .econ-iframe-wrap {
-  height: 260px;
+  flex: 1;
+  min-height: 220px;
   border-radius: var(--radius-sm);
   overflow: hidden;
-}
-
-.econ-loading,
-.econ-error,
-.econ-empty {
-  font-size: 13px;
-  color: var(--text-muted);
-  text-align: center;
-  padding: 12px 0;
-}
-
-.econ-error {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  color: var(--caution-color);
-}
-
-.econ-details {
-  flex: 1;
-  min-width: 0;
-}
-
-.econ-title {
-  color: var(--text-muted);
-}
-
-.econ-values {
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.econ-forecast,
-.econ-previous {
-  color: var(--text-muted);
-  font-size: 11px;
 }
 
 /* ==================== Trade List ==================== */
