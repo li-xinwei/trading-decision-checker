@@ -16,6 +16,8 @@ export interface Trade {
   takeProfit?: string;
   status: 'active' | 'closed';
   result?: 'win' | 'loss' | 'breakeven';
+  entryPrice?: number;
+  exitPrice?: number;
   pnlRR?: number;
   review?: string;
   checkSessionId?: string;

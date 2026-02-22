@@ -99,12 +99,13 @@ describe('useSession', () => {
     await waitFor(() => expect(result.current.trades).toHaveLength(1));
 
     await act(async () => {
-      await result.current.closeTrade('t1', 'win', 1.5, 'good entry');
+      await result.current.closeTrade('t1', 'win', 5890, 5895, 'good entry');
     });
 
-    expect(mockCloseTrade).toHaveBeenCalledWith('t1', 'win', 1.5, 'good entry');
+    expect(mockCloseTrade).toHaveBeenCalledWith('t1', 'win', 5890, 5895, 'good entry');
     expect(result.current.trades[0].status).toBe('closed');
     expect(result.current.trades[0].result).toBe('win');
-    expect(result.current.trades[0].pnlRR).toBe(1.5);
+    expect(result.current.trades[0].entryPrice).toBe(5890);
+    expect(result.current.trades[0].exitPrice).toBe(5895);
   });
 });

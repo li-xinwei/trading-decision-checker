@@ -278,32 +278,43 @@ export async function createTrade(trade: Trade): Promise<boolean> {
 export async function closeTrade(
   id: string,
   result: 'win' | 'loss' | 'breakeven',
-  pnlRR?: number,
+  entryPrice?: number,
+  exitPrice?: number,
   review?: string
 ): Promise<boolean> {
   const now = Date.now();
-  if (!supabase) {
-    const all = loadLocalTrades();
-    const idx = all.findIndex((t) => t.id === id);
-    if (idx >= 0) {
-      all[idx] = {
-        ...all[idx],
-        status: 'closed',
-        result,
-        pnlRR,
-        review,
-        closedAt: now,
-      };
-      saveLocalTrades(all);
-    }
-    return true;
+
+  const pnlPoints = entryPrice != null && exitPrice != null
+    ? +(exitPrice - entryPrice).toFixed(2)
+    : undefined;
+
+  const patch = {
+    status: 'closed' as const,
+    result,
+    entryPrice,
+    exitPrice,
+    pnlRR: pnlPoints,
+    review,
+    closedAt: now,
+  };
+
+  const all = loadLocalTrades();
+  const idx = all.findIndex((t) => t.id === id);
+  if (idx >= 0) {
+    all[idx] = { ...all[idx], ...patch };
+    saveLocalTrades(all);
   }
+
+  if (!supabase) return true;
+
   const { error } = await supabase
     .from('trades')
     .update({
       status: 'closed',
       result,
-      pnl_rr: pnlRR ?? null,
+      entry_price: entryPrice ?? null,
+      exit_price: exitPrice ?? null,
+      pnl_rr: pnlPoints ?? null,
       review: review || null,
       closed_at: new Date(now).toISOString(),
     })
@@ -356,6 +367,8 @@ function mapTradeRow(r: Record<string, unknown>): Trade {
     takeProfit: (r.take_profit as string) || undefined,
     status: (r.status as 'active' | 'closed') || 'closed',
     result: (r.result as 'win' | 'loss' | 'breakeven') || undefined,
+    entryPrice: r.entry_price != null ? Number(r.entry_price) : undefined,
+    exitPrice: r.exit_price != null ? Number(r.exit_price) : undefined,
     pnlRR: r.pnl_rr != null ? Number(r.pnl_rr) : undefined,
     review: (r.review as string) || undefined,
     checkSessionId: (r.check_session_id as string) || undefined,

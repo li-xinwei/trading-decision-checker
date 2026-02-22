@@ -1602,6 +1602,31 @@
   flex-shrink: 0;
 }
 
+.econ-impact-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  text-align: center;
+  min-width: 18px;
+}
+
+.econ-impact-badge.impact-high {
+  background: var(--nogo-bg);
+  color: var(--nogo-color);
+}
+
+.econ-impact-badge.impact-medium {
+  background: var(--caution-bg);
+  color: var(--caution-color);
+}
+
+.econ-impact-badge.impact-low {
+  background: rgba(118, 118, 128, 0.12);
+  color: var(--text-muted);
+}
+
 .econ-details {
   flex: 1;
   min-width: 0;
@@ -1879,41 +1904,55 @@
   resize: none;
 }
 
-.result-options {
+.modal-price-row {
   display: flex;
-  gap: 8px;
+  gap: 12px;
 }
 
-.result-option {
+.modal-price-row .modal-field {
   flex: 1;
-  padding: 10px;
-  background: rgba(118, 118, 128, 0.08);
-  border: 1.5px solid transparent;
+}
+
+.pnl-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
   border-radius: var(--radius-sm);
-  color: var(--text-secondary);
   font-size: 14px;
   font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-align: center;
 }
 
-.result-option.selected.win {
-  border-color: var(--go-color);
+.pnl-preview.win {
   background: var(--go-bg);
   color: var(--go-color);
 }
 
-.result-option.selected.loss {
-  border-color: var(--nogo-color);
+.pnl-preview.loss {
   background: var(--nogo-bg);
   color: var(--nogo-color);
 }
 
-.result-option.selected.breakeven {
-  border-color: var(--text-muted);
+.pnl-preview.breakeven {
   background: rgba(118, 118, 128, 0.12);
-  color: var(--text-primary);
+  color: var(--text-secondary);
+}
+
+.pnl-preview-label {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.pnl-preview-value {
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.pnl-preview-result {
+  margin-left: auto;
+  font-size: 12px;
+  opacity: 0.8;
 }
 
 .modal-footer {

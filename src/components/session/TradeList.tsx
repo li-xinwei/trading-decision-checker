@@ -8,9 +8,25 @@ interface TradeListProps {
   onClose: (
     tradeId: string,
     result: 'win' | 'loss' | 'breakeven',
-    pnlRR?: number,
+    entryPrice: number,
+    exitPrice: number,
     review?: string
   ) => void;
+}
+
+function formatPnl(trade: Trade): string {
+  if (trade.entryPrice != null && trade.exitPrice != null) {
+    const isLong = trade.direction === '做多';
+    const pts = isLong
+      ? trade.exitPrice - trade.entryPrice
+      : trade.entryPrice - trade.exitPrice;
+    const rounded = +pts.toFixed(2);
+    return `${rounded > 0 ? '+' : ''}${rounded}pt`;
+  }
+  if (trade.pnlRR != null) {
+    return `${trade.pnlRR > 0 ? '+' : ''}${trade.pnlRR}R`;
+  }
+  return '—';
 }
 
 export function TradeList({ trades, onClose }: TradeListProps) {
@@ -74,7 +90,7 @@ export function TradeList({ trades, onClose }: TradeListProps) {
                 </div>
                 <div className="trade-item-right">
                   <span className={`trade-pnl ${trade.result}`}>
-                    {trade.pnlRR != null ? `${trade.pnlRR > 0 ? '+' : ''}${trade.pnlRR}R` : '—'}
+                    {formatPnl(trade)}
                   </span>
                 </div>
               </div>
@@ -93,8 +109,8 @@ export function TradeList({ trades, onClose }: TradeListProps) {
       {closingId && (
         <TradeCloseModal
           trade={trades.find((t) => t.id === closingId)!}
-          onConfirm={(result, pnlRR, review) => {
-            onClose(closingId, result, pnlRR, review);
+          onConfirm={(result, entryPrice, exitPrice, review) => {
+            onClose(closingId, result, entryPrice, exitPrice, review);
             setClosingId(null);
           }}
           onCancel={() => setClosingId(null)}

@@ -67,14 +67,23 @@ export function useSession(sessionId: string) {
     async (
       tradeId: string,
       result: 'win' | 'loss' | 'breakeven',
-      pnlRR?: number,
+      entryPrice?: number,
+      exitPrice?: number,
       review?: string
     ) => {
-      await closeTradeApi(tradeId, result, pnlRR, review);
+      await closeTradeApi(tradeId, result, entryPrice, exitPrice, review);
       setTrades((prev) =>
         prev.map((t) =>
           t.id === tradeId
-            ? { ...t, status: 'closed', result, pnlRR, review, closedAt: Date.now() }
+            ? {
+                ...t,
+                status: 'closed' as const,
+                result,
+                entryPrice,
+                exitPrice,
+                review,
+                closedAt: Date.now(),
+              }
             : t
         )
       );
@@ -83,8 +92,18 @@ export function useSession(sessionId: string) {
   );
 
   const refreshTrades = useCallback(async () => {
-    const t = await fetchTradesBySession(sessionId);
-    setTrades(t);
+    const fresh = await fetchTradesBySession(sessionId);
+    setTrades((prev) => {
+      const localClosed = new Map(
+        prev.filter((t) => t.status === 'closed').map((t) => [t.id, t])
+      );
+      return fresh.map((t) => {
+        if (t.status === 'active' && localClosed.has(t.id)) {
+          return localClosed.get(t.id)!;
+        }
+        return t;
+      });
+    });
   }, [sessionId]);
 
   return {
