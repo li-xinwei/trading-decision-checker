@@ -1,15 +1,21 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, History, RotateCcw } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { ChevronLeft, History, RotateCcw, LogOut } from 'lucide-react';
 import { ProgressBar } from '../components/ProgressBar';
 import { QuestionCard } from '../components/QuestionCard';
 import { ResultCard } from '../components/ResultCard';
 import { HistoryPanel } from '../components/HistoryPanel';
 import { useDecisionTree } from '../hooks/useDecisionTree';
 import { useTradingSystem } from '../hooks/useTradingSystem';
+import { useLogout } from '../hooks/useAuth';
+import { createTrade } from '../lib/supabase';
+import type { Trade } from '../types/trading';
 
 export function CheckPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const sessionId = searchParams.get('sessionId');
+  const logout = useLogout();
   const { system } = useTradingSystem();
   const {
     currentNode,
@@ -25,12 +31,41 @@ export function CheckPage() {
   } = useDecisionTree(system.treeConfig);
 
   const [showHistory, setShowHistory] = useState(false);
+  const [tradeCreated, setTradeCreated] = useState(false);
+
+  const handleGoResult = useCallback(async () => {
+    if (!result || result.type !== 'go' || !sessionId || tradeCreated) return;
+
+    const setupDecision = decisions.find((d) => d.nodeId === 'choose_setup');
+    const directionDecision = decisions[decisions.length - 1];
+
+    const trade: Trade = {
+      id: `trade_${Date.now()}`,
+      sessionId,
+      setupType: setupDecision?.answer || 'unknown',
+      direction: directionDecision?.answer === 'long' ? '做多' : '做空',
+      entryPlan: result.executionPlan?.entry,
+      stopLoss: result.executionPlan?.stopLoss,
+      takeProfit: result.executionPlan?.takeProfit,
+      status: 'active',
+      openedAt: Date.now(),
+    };
+
+    await createTrade(trade);
+    setTradeCreated(true);
+  }, [result, sessionId, decisions, tradeCreated]);
+
+  useEffect(() => {
+    handleGoResult();
+  }, [handleGoResult]);
+
+  const backPath = sessionId ? `/session/${sessionId}` : '/';
 
   return (
     <div className="app">
       <header className="page-header">
         <div className="page-header-left">
-          <button className="page-back-btn" onClick={() => navigate('/')}>
+          <button className="page-back-btn" onClick={() => navigate(backPath)}>
             <ChevronLeft size={18} />
             返回
           </button>
@@ -51,6 +86,9 @@ export function CheckPage() {
               <span>重来</span>
             </button>
           )}
+          <button className="header-btn" onClick={logout} title="登出">
+            <LogOut size={16} />
+          </button>
         </div>
       </header>
 
@@ -72,12 +110,22 @@ export function CheckPage() {
         )}
 
         {result && (
-          <ResultCard
-            result={result}
-            decisions={decisions}
-            onReset={reset}
-            onBack={goBack}
-          />
+          <div>
+            {tradeCreated && sessionId && (
+              <div className="trade-created-banner animate-in">
+                <span>交易已添加到 Session</span>
+                <button onClick={() => navigate(`/session/${sessionId}`)}>
+                  返回 Session
+                </button>
+              </div>
+            )}
+            <ResultCard
+              result={result}
+              decisions={decisions}
+              onReset={reset}
+              onBack={goBack}
+            />
+          </div>
         )}
 
         {!result && !currentNode && (

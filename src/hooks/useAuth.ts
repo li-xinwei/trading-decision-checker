@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, createContext, useContext } from 'react';
 
 const STORAGE_KEY = 'tp_auth';
 const PASSWORD = import.meta.env.VITE_APP_PASSWORD || 'trading2026';
@@ -10,6 +10,16 @@ function isAuthenticated(): boolean {
   } catch {
     return false;
   }
+}
+
+interface AuthContextValue {
+  logout: () => void;
+}
+
+export const AuthContext = createContext<AuthContextValue>({ logout: () => {} });
+
+export function useLogout() {
+  return useContext(AuthContext).logout;
 }
 
 export function useAuth() {
