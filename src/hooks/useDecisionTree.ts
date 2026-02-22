@@ -86,8 +86,8 @@ export function useDecisionTree(config: DecisionTreeConfig) {
           endTime: Date.now(),
           decisions: newDecisions,
           result: resultNode,
-          tradeDirection: newDecisions[0]?.answer,
-          pair: pair || undefined,
+          tradeDirection: newDecisions[newDecisions.length - 1]?.answer,
+          pair: newDecisions.find(d => d.nodeId === 'choose_setup')?.answer || pair || undefined,
         };
 
         const newHistory = [session, ...history].slice(0, 50);

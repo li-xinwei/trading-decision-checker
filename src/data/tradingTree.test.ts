@@ -122,7 +122,7 @@ describe('tradingDecisionTree V3 data integrity', () => {
   });
 
   it('pullback shallow path reaches GO', () => {
-    const path = ['no', 'pullback', 'yes', 'twopush', 'yes', 'yes', 'shallow'];
+    const path = ['no', 'pullback', 'yes', 'twopush', 'yes', 'yes', 'shallow', 'long'];
     let currentId = rootNodeId;
     for (const value of path) {
       const node = nodes[currentId];
@@ -136,7 +136,7 @@ describe('tradingDecisionTree V3 data integrity', () => {
   });
 
   it('MTR reversal path reaches GO', () => {
-    const path = ['no', 'mtr', 'yes', 'yes', 'spike_channel'];
+    const path = ['no', 'mtr', 'yes', 'yes', 'spike_channel', 'long'];
     let currentId = rootNodeId;
     for (const value of path) {
       const node = nodes[currentId];
@@ -160,7 +160,7 @@ describe('tradingDecisionTree V3 data integrity', () => {
   });
 
   it('struct reversal full path reaches GO', () => {
-    const path = ['no', 'struct_reversal', 'yes', 'yes', 'yes'];
+    const path = ['no', 'struct_reversal', 'yes', 'yes', 'yes', 'long'];
     let currentId = rootNodeId;
     for (const value of path) {
       const node = nodes[currentId];
@@ -172,7 +172,7 @@ describe('tradingDecisionTree V3 data integrity', () => {
   });
 
   it('range fade BF path reaches GO', () => {
-    const path = ['no', 'range_fade', 'yes', 'range', 'yes', 'bf'];
+    const path = ['no', 'range_fade', 'yes', 'range', 'yes', 'bf', 'long'];
     let currentId = rootNodeId;
     for (const value of path) {
       const node = nodes[currentId];

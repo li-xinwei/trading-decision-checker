@@ -93,8 +93,8 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       description: '回调幅度相对于前一段趋势的比例',
       category: '回调setup',
       options: [
-        { label: '浅回调（≤ 50%）', value: 'shallow', nextNodeId: 'result_go_pb_shallow' },
-        { label: '深回调（> 50%）', value: 'deep', nextNodeId: 'result_go_pb_deep' },
+        { label: '浅回调（≤ 50%）', value: 'shallow', nextNodeId: 'td_pb_shallow' },
+        { label: '深回调（> 50%）', value: 'deep', nextNodeId: 'td_pb_deep' },
       ],
     },
     pb_tr: {
@@ -103,7 +103,7 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       description: '大的顺势K线创出新高1/高2/高3（或低1/低2/低3），在极值外入场',
       category: '回调setup',
       options: [
-        { label: '是，出现趋势继续信号', value: 'yes', nextNodeId: 'result_go_pb_tr' },
+        { label: '是，出现趋势继续信号', value: 'yes', nextNodeId: 'td_pb_tr' },
         { label: '没有信号', value: 'no', nextNodeId: 'result_caution_wait_signal' },
       ],
     },
@@ -123,7 +123,7 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       description: '在共振位置出现优秀的顺势信号K线和趋势K线',
       category: '回调setup',
       options: [
-        { label: '是，信号明确', value: 'yes', nextNodeId: 'result_go_pb_50' },
+        { label: '是，信号明确', value: 'yes', nextNodeId: 'td_pb_50' },
         { label: '还没有', value: 'no', nextNodeId: 'result_caution_wait_signal' },
       ],
     },
@@ -145,7 +145,7 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       description: '用突破单在高1/低1入场，做顺势交易',
       category: '20均线缺口setup',
       options: [
-        { label: '是，信号出现', value: 'yes', nextNodeId: 'result_go_ma20' },
+        { label: '是，信号出现', value: 'yes', nextNodeId: 'td_ma20' },
         { label: '还没有', value: 'no', nextNodeId: 'result_caution_wait_signal' },
       ],
     },
@@ -177,7 +177,7 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       description: '等待第二次反转信号确认后入场',
       category: '结构+磁体反转setup',
       options: [
-        { label: '是，二次信号确认', value: 'yes', nextNodeId: 'result_go_sr' },
+        { label: '是，二次信号确认', value: 'yes', nextNodeId: 'td_sr' },
         { label: '还在等待', value: 'no', nextNodeId: 'result_caution_wait_signal' },
       ],
     },
@@ -209,8 +209,8 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       description: '在趋势极值处做反转交易，将反转方向作为顺势方向',
       category: 'MTR反转setup',
       options: [
-        { label: '急速与通道', value: 'spike_channel', nextNodeId: 'result_go_mtr' },
-        { label: '末端旗形', value: 'final_flag', nextNodeId: 'result_go_mtr' },
+        { label: '急速与通道', value: 'spike_channel', nextNodeId: 'td_mtr' },
+        { label: '末端旗形', value: 'final_flag', nextNodeId: 'td_mtr' },
       ],
     },
 
@@ -241,7 +241,7 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       description: '评估开盘后第一根K线的形态',
       category: '突破setup',
       options: [
-        { label: '大顺势K，上下秃头', value: 'perfect', nextNodeId: 'result_go_bo_gap' },
+        { label: '大顺势K，上下秃头', value: 'perfect', nextNodeId: 'td_bo_gap' },
         { label: '大顺势K，顺势秃头但有逆势影线', value: 'good', nextNodeId: 'bo_second_bar' },
         { label: 'K线质量不佳', value: 'bad', nextNodeId: 'result_no_go_bar_quality' },
       ],
@@ -252,7 +252,7 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       description: '第一根有逆势影线时，需要第二根K线确认方向',
       category: '突破setup',
       options: [
-        { label: '是，第二根也是顺势K', value: 'yes', nextNodeId: 'result_go_bo_gap_confirmed' },
+        { label: '是，第二根也是顺势K', value: 'yes', nextNodeId: 'td_bo_gap_confirmed' },
         { label: '否', value: 'no', nextNodeId: 'result_no_go_bar_quality' },
       ],
     },
@@ -262,7 +262,7 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       description: '盘中出现大顺势K线突破关键位，K线实体大且秃头',
       category: '突破setup',
       options: [
-        { label: '是，大顺势秃头K线', value: 'yes', nextNodeId: 'result_go_bo_trend' },
+        { label: '是，大顺势秃头K线', value: 'yes', nextNodeId: 'td_bo_trend' },
         { label: 'K线不够强', value: 'no', nextNodeId: 'result_caution_wait_signal' },
       ],
     },
@@ -284,9 +284,9 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       description: '评估突破的质量和后续表现',
       category: '震荡区间/通道突破',
       options: [
-        { label: '成功突破边缘，有不错的跟随', value: 'clean', nextNodeId: 'result_go_rb_direct' },
-        { label: '突破后回测，再次突破', value: 'retest', nextNodeId: 'result_go_rb_retest' },
-        { label: '突破失败的失败（二次反向突破）', value: 'bff', nextNodeId: 'result_go_rb_bff' },
+        { label: '成功突破边缘，有不错的跟随', value: 'clean', nextNodeId: 'td_rb_direct' },
+        { label: '突破后回测，再次突破', value: 'retest', nextNodeId: 'td_rb_retest' },
+        { label: '突破失败的失败（二次反向突破）', value: 'bff', nextNodeId: 'td_rb_bff' },
         { label: '突破不够有力', value: 'weak', nextNodeId: 'result_caution_wait_signal' },
       ],
     },
@@ -328,8 +328,8 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       description: '观察K线触及区间边缘时的行为',
       category: '区间/宽通道setup',
       options: [
-        { label: '明显突破失败迹象（十字星/长影线）', value: 'bf', nextNodeId: 'result_go_rf_range_bf' },
-        { label: '强趋势K线测试边缘', value: 'trend', nextNodeId: 'result_go_rf_range_trend' },
+        { label: '明显突破失败迹象（十字星/长影线）', value: 'bf', nextNodeId: 'td_rf_range_bf' },
+        { label: '强趋势K线测试边缘', value: 'trend', nextNodeId: 'td_rf_range_trend' },
       ],
     },
     rf_channel_confirm: {
@@ -348,9 +348,170 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       description: '观察K线触及通道边缘时的行为',
       category: '区间/宽通道setup',
       options: [
-        { label: '明显突破失败迹象（十字星/长影线）', value: 'bf', nextNodeId: 'result_go_rf_channel' },
-        { label: '测试后续出现反向大趋势K线', value: 'reversal', nextNodeId: 'result_go_rf_channel' },
+        { label: '明显突破失败迹象（十字星/长影线）', value: 'bf', nextNodeId: 'td_rf_channel' },
+        { label: '测试后续出现反向大趋势K线', value: 'reversal', nextNodeId: 'td_rf_channel' },
         { label: '无明显反转迹象', value: 'none', nextNodeId: 'result_caution_wait_signal' },
+      ],
+    },
+    // ==================== 交易方向（所有GO结果前的最后一步） ====================
+    td_pb_shallow: {
+      id: 'td_pb_shallow',
+      question: '交易方向？',
+      description: '确认这笔交易的方向',
+      category: '交易方向',
+      options: [
+        { label: '做多 (Long)', value: 'long', nextNodeId: 'result_go_pb_shallow', icon: '📈' },
+        { label: '做空 (Short)', value: 'short', nextNodeId: 'result_go_pb_shallow', icon: '📉' },
+      ],
+    },
+    td_pb_deep: {
+      id: 'td_pb_deep',
+      question: '交易方向？',
+      description: '确认这笔交易的方向',
+      category: '交易方向',
+      options: [
+        { label: '做多 (Long)', value: 'long', nextNodeId: 'result_go_pb_deep', icon: '📈' },
+        { label: '做空 (Short)', value: 'short', nextNodeId: 'result_go_pb_deep', icon: '📉' },
+      ],
+    },
+    td_pb_tr: {
+      id: 'td_pb_tr',
+      question: '交易方向？',
+      description: '确认这笔交易的方向',
+      category: '交易方向',
+      options: [
+        { label: '做多 (Long)', value: 'long', nextNodeId: 'result_go_pb_tr', icon: '📈' },
+        { label: '做空 (Short)', value: 'short', nextNodeId: 'result_go_pb_tr', icon: '📉' },
+      ],
+    },
+    td_pb_50: {
+      id: 'td_pb_50',
+      question: '交易方向？',
+      description: '确认这笔交易的方向',
+      category: '交易方向',
+      options: [
+        { label: '做多 (Long)', value: 'long', nextNodeId: 'result_go_pb_50', icon: '📈' },
+        { label: '做空 (Short)', value: 'short', nextNodeId: 'result_go_pb_50', icon: '📉' },
+      ],
+    },
+    td_ma20: {
+      id: 'td_ma20',
+      question: '交易方向？',
+      description: '确认这笔交易的方向',
+      category: '交易方向',
+      options: [
+        { label: '做多 (Long)', value: 'long', nextNodeId: 'result_go_ma20', icon: '📈' },
+        { label: '做空 (Short)', value: 'short', nextNodeId: 'result_go_ma20', icon: '📉' },
+      ],
+    },
+    td_sr: {
+      id: 'td_sr',
+      question: '交易方向？',
+      description: '确认这笔交易的方向',
+      category: '交易方向',
+      options: [
+        { label: '做多 (Long)', value: 'long', nextNodeId: 'result_go_sr', icon: '📈' },
+        { label: '做空 (Short)', value: 'short', nextNodeId: 'result_go_sr', icon: '📉' },
+      ],
+    },
+    td_mtr: {
+      id: 'td_mtr',
+      question: '交易方向？',
+      description: '确认这笔交易的方向',
+      category: '交易方向',
+      options: [
+        { label: '做多 (Long)', value: 'long', nextNodeId: 'result_go_mtr', icon: '📈' },
+        { label: '做空 (Short)', value: 'short', nextNodeId: 'result_go_mtr', icon: '📉' },
+      ],
+    },
+    td_bo_gap: {
+      id: 'td_bo_gap',
+      question: '交易方向？',
+      description: '确认这笔交易的方向',
+      category: '交易方向',
+      options: [
+        { label: '做多 (Long)', value: 'long', nextNodeId: 'result_go_bo_gap', icon: '📈' },
+        { label: '做空 (Short)', value: 'short', nextNodeId: 'result_go_bo_gap', icon: '📉' },
+      ],
+    },
+    td_bo_gap_confirmed: {
+      id: 'td_bo_gap_confirmed',
+      question: '交易方向？',
+      description: '确认这笔交易的方向',
+      category: '交易方向',
+      options: [
+        { label: '做多 (Long)', value: 'long', nextNodeId: 'result_go_bo_gap_confirmed', icon: '📈' },
+        { label: '做空 (Short)', value: 'short', nextNodeId: 'result_go_bo_gap_confirmed', icon: '📉' },
+      ],
+    },
+    td_bo_trend: {
+      id: 'td_bo_trend',
+      question: '交易方向？',
+      description: '确认这笔交易的方向',
+      category: '交易方向',
+      options: [
+        { label: '做多 (Long)', value: 'long', nextNodeId: 'result_go_bo_trend', icon: '📈' },
+        { label: '做空 (Short)', value: 'short', nextNodeId: 'result_go_bo_trend', icon: '📉' },
+      ],
+    },
+    td_rb_direct: {
+      id: 'td_rb_direct',
+      question: '交易方向？',
+      description: '确认这笔交易的方向',
+      category: '交易方向',
+      options: [
+        { label: '做多 (Long)', value: 'long', nextNodeId: 'result_go_rb_direct', icon: '📈' },
+        { label: '做空 (Short)', value: 'short', nextNodeId: 'result_go_rb_direct', icon: '📉' },
+      ],
+    },
+    td_rb_retest: {
+      id: 'td_rb_retest',
+      question: '交易方向？',
+      description: '确认这笔交易的方向',
+      category: '交易方向',
+      options: [
+        { label: '做多 (Long)', value: 'long', nextNodeId: 'result_go_rb_retest', icon: '📈' },
+        { label: '做空 (Short)', value: 'short', nextNodeId: 'result_go_rb_retest', icon: '📉' },
+      ],
+    },
+    td_rb_bff: {
+      id: 'td_rb_bff',
+      question: '交易方向？',
+      description: '确认这笔交易的方向',
+      category: '交易方向',
+      options: [
+        { label: '做多 (Long)', value: 'long', nextNodeId: 'result_go_rb_bff', icon: '📈' },
+        { label: '做空 (Short)', value: 'short', nextNodeId: 'result_go_rb_bff', icon: '📉' },
+      ],
+    },
+    td_rf_range_bf: {
+      id: 'td_rf_range_bf',
+      question: '交易方向？',
+      description: '确认这笔交易的方向',
+      category: '交易方向',
+      options: [
+        { label: '做多 (Long)', value: 'long', nextNodeId: 'result_go_rf_range_bf', icon: '📈' },
+        { label: '做空 (Short)', value: 'short', nextNodeId: 'result_go_rf_range_bf', icon: '📉' },
+      ],
+    },
+    td_rf_range_trend: {
+      id: 'td_rf_range_trend',
+      question: '交易方向？',
+      description: '确认这笔交易的方向',
+      category: '交易方向',
+      options: [
+        { label: '做多 (Long)', value: 'long', nextNodeId: 'result_go_rf_range_trend', icon: '📈' },
+        { label: '做空 (Short)', value: 'short', nextNodeId: 'result_go_rf_range_trend', icon: '📉' },
+      ],
+    },
+    td_rf_channel: {
+      id: 'td_rf_channel',
+      question: '交易方向？',
+      description: '确认这笔交易的方向',
+      category: '交易方向',
+      options: [
+        { label: '做多 (Long)', value: 'long', nextNodeId: 'result_go_rf_channel', icon: '📈' },
+        { label: '做空 (Short)', value: 'short', nextNodeId: 'result_go_rf_channel', icon: '📉' },
       ],
     },
   },

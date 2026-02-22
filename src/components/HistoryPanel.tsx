@@ -62,11 +62,17 @@ export function HistoryPanel({ sessions, onClear, onClose }: HistoryPanelProps) 
                   <div className="history-item-left">
                     {session.tradeDirection?.includes('多') || session.tradeDirection?.includes('Long') ? (
                       <TrendingUp size={16} className="trend-up" />
-                    ) : (
+                    ) : session.tradeDirection?.includes('空') || session.tradeDirection?.includes('Short') ? (
                       <TrendingDown size={16} className="trend-down" />
-                    )}
-                    <span className="history-direction">{session.tradeDirection}</span>
-                    {session.pair && <span className="history-pair">{session.pair}</span>}
+                    ) : null}
+                    <span className="history-direction">
+                      {session.tradeDirection?.includes('多') || session.tradeDirection?.includes('Long')
+                        ? '做多'
+                        : session.tradeDirection?.includes('空') || session.tradeDirection?.includes('Short')
+                        ? '做空'
+                        : session.tradeDirection}
+                      {session.pair ? ` · ${session.pair}` : ''}
+                    </span>
                   </div>
                   <div className="history-item-right">
                     {getResultBadge(session.result?.type)}
@@ -77,9 +83,6 @@ export function HistoryPanel({ sessions, onClear, onClose }: HistoryPanelProps) 
                   <span>{formatTime(session.startTime)}</span>
                   <span className="history-steps">{session.decisions.length} 步</span>
                 </div>
-                {session.result && (
-                  <div className="history-item-result">{session.result.title}</div>
-                )}
               </div>
             ))}
           </div>
