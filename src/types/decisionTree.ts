@@ -55,3 +55,20 @@ export interface CheckSession {
   pair?: string;
 }
 
+export interface ContextFilter {
+  id: string;
+  name: string;
+  description: string;
+  conditions: string[];
+  action: 'block' | 'warn';
+  blockMessage: string;
+}
+
+export interface TradingSystemData {
+  contextFilters: ContextFilter[];
+  treeConfig: DecisionTreeConfig;
+  tradersEquation: string;
+  riskManagement: string;
+  psychology: string;
+}
+

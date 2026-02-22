@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import type { CheckSession } from '../types/decisionTree';
+import type { CheckSession, TradingSystemData } from '../types/decisionTree';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
@@ -78,6 +78,38 @@ export async function deleteAllSessions(): Promise<boolean> {
     .neq('id', '');
   if (error) {
     console.error('Supabase delete error:', error.message);
+    return false;
+  }
+  return true;
+}
+
+const SYSTEM_ID = 'default';
+
+export async function fetchTradingSystem(): Promise<TradingSystemData | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from('trading_systems')
+    .select('data')
+    .eq('id', SYSTEM_ID)
+    .single();
+  if (error) {
+    console.error('Supabase fetch system error:', error.message);
+    return null;
+  }
+  return data?.data as TradingSystemData ?? null;
+}
+
+export async function saveTradingSystem(system: TradingSystemData): Promise<boolean> {
+  if (!supabase) return false;
+  const { error } = await supabase
+    .from('trading_systems')
+    .upsert({
+      id: SYSTEM_ID,
+      data: system,
+      updated_at: new Date().toISOString(),
+    });
+  if (error) {
+    console.error('Supabase save system error:', error.message);
     return false;
   }
   return true;
