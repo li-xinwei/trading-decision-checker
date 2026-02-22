@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, LogOut, StopCircle, ClipboardCheck } from 'lucide-react';
 import { useLogout } from '../hooks/useAuth';
@@ -15,7 +15,10 @@ export function SessionPage() {
   const [endNotes, setEndNotes] = useState('');
   const [showEndConfirm, setShowEndConfirm] = useState(false);
 
-  const sessionId = id === 'new' ? `session_${Date.now()}` : id!;
+  const sessionId = useMemo(
+    () => (id === 'new' ? `session_${Date.now()}` : id!),
+    [id]
+  );
 
   const {
     session,
@@ -29,9 +32,11 @@ export function SessionPage() {
 
   useEffect(() => {
     if (id === 'new' && !session && !loading) {
-      startSession();
+      startSession().then(() => {
+        navigate(`/session/${sessionId}`, { replace: true });
+      });
     }
-  }, [id, session, loading, startSession]);
+  }, [id, session, loading, startSession, sessionId, navigate]);
 
   useEffect(() => {
     if (!session || session.status !== 'active') return;
@@ -55,7 +60,9 @@ export function SessionPage() {
   if (!session) {
     return (
       <div className="app">
-        <div className="loading-screen">Session 不存在</div>
+        <div className="loading-screen">
+          <p>正在创建 Session...</p>
+        </div>
       </div>
     );
   }
@@ -67,7 +74,7 @@ export function SessionPage() {
       <header className="page-header">
         <div className="page-header-left">
           <button className="page-back-btn" onClick={() => navigate('/')}>
-            <ChevronLeft size={18} />
+            <ChevronLeft size={16} />
             返回
           </button>
         </div>
@@ -84,12 +91,12 @@ export function SessionPage() {
               className="header-btn end-session-btn"
               onClick={() => setShowEndConfirm(true)}
             >
-              <StopCircle size={16} />
+              <StopCircle size={14} />
               <span>结束</span>
             </button>
           )}
           <button className="header-btn" onClick={logout} title="登出">
-            <LogOut size={16} />
+            <LogOut size={14} />
           </button>
         </div>
       </header>
@@ -100,25 +107,17 @@ export function SessionPage() {
             <TradingViewWidget />
           </div>
           <div className="session-sidebar">
-            <div className="session-sidebar-section">
-              {isActive && (
-                <button
-                  className="check-trade-btn"
-                  onClick={() =>
-                    navigate(`/check?sessionId=${session.id}`)
-                  }
-                >
-                  <ClipboardCheck size={18} />
-                  开单检查
-                </button>
-              )}
-            </div>
-            <div className="session-sidebar-section">
-              <TradeList trades={trades} onClose={closeTrade} />
-            </div>
-            <div className="session-sidebar-section">
-              <EconomicCalendar />
-            </div>
+            {isActive && (
+              <button
+                className="check-trade-btn"
+                onClick={() => navigate(`/check?sessionId=${session.id}`)}
+              >
+                <ClipboardCheck size={16} />
+                开单检查
+              </button>
+            )}
+            <TradeList trades={trades} onClose={closeTrade} />
+            <EconomicCalendar />
           </div>
         </div>
       </div>
@@ -136,16 +135,13 @@ export function SessionPage() {
                   value={endNotes}
                   onChange={(e) => setEndNotes(e.target.value)}
                   placeholder="今天的交易 session 有什么感想..."
-                  rows={4}
+                  rows={3}
                   className="modal-textarea"
                 />
               </div>
             </div>
             <div className="modal-footer">
-              <button
-                className="modal-cancel-btn"
-                onClick={() => setShowEndConfirm(false)}
-              >
+              <button className="modal-cancel-btn" onClick={() => setShowEndConfirm(false)}>
                 取消
               </button>
               <button className="modal-confirm-btn danger" onClick={handleEnd}>

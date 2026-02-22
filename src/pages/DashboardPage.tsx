@@ -8,31 +8,31 @@ export function DashboardPage() {
 
   const cards = [
     {
-      icon: <PlayCircle size={24} />,
+      icon: <PlayCircle size={18} />,
       iconClass: 'session',
       title: '新交易 Session',
-      desc: '开始一个新的交易时段，包含计时、开单检查与图表',
+      desc: '计时、开单检查、图表、进行中的交易',
       path: '/session/new',
     },
     {
-      icon: <BookOpen size={24} />,
+      icon: <BookOpen size={18} />,
       iconClass: 'system',
       title: '交易系统',
-      desc: '查看与编辑交易系统规则、Setup 和决策树',
+      desc: '查看与编辑系统规则和 Setup',
       path: '/system',
     },
     {
-      icon: <FileText size={24} />,
+      icon: <FileText size={18} />,
       iconClass: 'summary',
       title: '每日总结',
-      desc: '记录今日交易心得，AI 格式化归档',
+      desc: '交易心得记录，AI 格式化归档',
       path: '/summary',
     },
     {
-      icon: <BarChart3 size={24} />,
+      icon: <BarChart3 size={18} />,
       iconClass: 'analytics',
       title: '系统复盘',
-      desc: '查看历史交易数据、Setup 胜率与统计分析',
+      desc: '历史交易数据、胜率与统计',
       path: '/analytics',
     },
   ];
