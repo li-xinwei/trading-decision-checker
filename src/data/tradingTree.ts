@@ -3,8 +3,20 @@ import type { DecisionTreeConfig } from '../types/decisionTree';
 export const tradingDecisionTree: DecisionTreeConfig = {
   name: 'Trading System V3',
   description: '基于交易系统V3的Setup筛选决策树，选择Setup后逐级Filter',
-  rootNodeId: 'choose_setup',
+  rootNodeId: 'barbed_wire',
   nodes: {
+    // ==================== 铁丝网Filter ====================
+    barbed_wire: {
+      id: 'barbed_wire',
+      question: '当前是否处于铁丝网（Barbed Wire）形态？',
+      description: '检查最近3-5根K线是否满足以下特征：\n• 高度重叠\n• 带有长长的上下影线（突出的尾巴）\n• 包含一个或多个十字星（Doji）\n• 20 EMA均线基本走平，且价格在均线上下穿梭',
+      category: '铁丝网Filter',
+      options: [
+        { label: '是，符合铁丝网特征', value: 'yes', nextNodeId: 'result_no_go_barbed_wire' },
+        { label: '否，市场有方向性', value: 'no', nextNodeId: 'choose_setup' },
+      ],
+    },
+
     // ==================== 选择Setup ====================
     choose_setup: {
       id: 'choose_setup',
@@ -670,6 +682,18 @@ export const tradingDecisionTree: DecisionTreeConfig = {
       suggestions: [
         '等待区间/通道结构形成',
         '考虑其他setup类型',
+      ],
+    },
+    result_no_go_barbed_wire: {
+      id: 'result_no_go_barbed_wire',
+      type: 'no-go',
+      title: '🚫 禁止交易 - 铁丝网形态',
+      message: '当前处于铁丝网（Barbed Wire）形态：K线高度重叠、长影线、十字星、20 EMA走平。这是最差的交易环境，任何setup都不适用。',
+      suggestions: [
+        '立刻停止交易，不要在铁丝网中寻找机会',
+        '等待市场走出铁丝网，出现方向性K线',
+        '切换到更高时间框架观察大方向',
+        '铁丝网中的突破大多是假突破，不要追',
       ],
     },
   },
