@@ -1,74 +1,60 @@
 import { useEffect, useRef } from 'react';
 
-declare global {
-  interface Window {
-    TradingView?: {
-      widget: new (config: Record<string, unknown>) => unknown;
-    };
-  }
-}
+const WIDGET_CONFIG = {
+  autosize: true,
+  symbol: 'CME_MINI:MES1!',
+  interval: '5',
+  timezone: 'America/New_York',
+  theme: 'dark',
+  style: '1',
+  locale: 'zh_CN',
+  allow_symbol_change: false,
+  calendar: false,
+  hide_top_toolbar: false,
+  hide_legend: false,
+  save_image: false,
+  backgroundColor: 'rgba(0, 0, 0, 1)',
+  gridColor: 'rgba(118, 118, 128, 0.06)',
+  studies: ['MAExp@tv-basicstudies'],
+  support_host: 'https://www.tradingview.com',
+};
 
-const WIDGET_SCRIPT = 'https://s.tradingview.com/tv.js';
-const CONTAINER_ID = 'tv_mes_chart';
+const SCRIPT_SRC =
+  'https://s.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
 
 export function TradingViewWidget() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const widgetRef = useRef<unknown>(null);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-    function createWidget() {
-      if (!window.TradingView || !containerRef.current) return;
-      containerRef.current.innerHTML = '';
+    container.innerHTML = '';
 
-      widgetRef.current = new window.TradingView.widget({
-        autosize: true,
-        symbol: 'CME_MINI:MES1!',
-        interval: '5',
-        timezone: 'America/New_York',
-        theme: 'dark',
-        style: '1',
-        locale: 'zh_CN',
-        toolbar_bg: '#1c1c1e',
-        enable_publishing: false,
-        allow_symbol_change: false,
-        hide_side_toolbar: false,
-        withdateranges: true,
-        save_image: false,
-        container_id: CONTAINER_ID,
-        studies: ['MAExp@tv-basicstudies'],
-        backgroundColor: '#000000',
-        gridColor: 'rgba(118,118,128,0.08)',
-        overrides: {
-          'paneProperties.background': '#000000',
-          'paneProperties.backgroundType': 'solid',
-        },
-      });
-    }
-
-    const existing = document.querySelector(`script[src="${WIDGET_SCRIPT}"]`);
-    if (existing) {
-      createWidget();
-      return;
-    }
+    const widgetDiv = document.createElement('div');
+    widgetDiv.className = 'tradingview-widget-container__widget';
+    widgetDiv.style.height = '100%';
+    widgetDiv.style.width = '100%';
+    container.appendChild(widgetDiv);
 
     const script = document.createElement('script');
-    script.src = WIDGET_SCRIPT;
+    script.type = 'text/javascript';
+    script.src = SCRIPT_SRC;
     script.async = true;
-    script.onload = createWidget;
-    document.head.appendChild(script);
+    script.textContent = JSON.stringify(WIDGET_CONFIG);
+    container.appendChild(script);
+
+    return () => {
+      container.innerHTML = '';
+    };
   }, []);
 
   return (
     <div className="tv-widget">
-      <div className="tv-chart-container">
-        <div
-          id={CONTAINER_ID}
-          ref={containerRef}
-          style={{ height: '100%', width: '100%' }}
-        />
-      </div>
+      <div
+        className="tv-chart-container tradingview-widget-container"
+        ref={containerRef}
+      />
     </div>
   );
 }

@@ -1556,6 +1556,24 @@
   margin-bottom: 8px;
 }
 
+.econ-link {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--text-muted);
+  text-decoration: none;
+  opacity: 0.6;
+}
+
+.econ-link:hover {
+  opacity: 1;
+}
+
+.econ-iframe-wrap {
+  height: 260px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
 .econ-loading,
 .econ-error,
 .econ-empty {
@@ -1573,69 +1591,9 @@
   color: var(--caution-color);
 }
 
-.econ-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.econ-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  background: rgba(118, 118, 128, 0.06);
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-}
-
-.econ-time {
-  font-weight: 600;
-  color: var(--text-secondary);
-  min-width: 42px;
-}
-
-.econ-impact-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.econ-impact-badge {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 1px 5px;
-  border-radius: 3px;
-  flex-shrink: 0;
-  text-align: center;
-  min-width: 18px;
-}
-
-.econ-impact-badge.impact-high {
-  background: var(--nogo-bg);
-  color: var(--nogo-color);
-}
-
-.econ-impact-badge.impact-medium {
-  background: var(--caution-bg);
-  color: var(--caution-color);
-}
-
-.econ-impact-badge.impact-low {
-  background: rgba(118, 118, 128, 0.12);
-  color: var(--text-muted);
-}
-
 .econ-details {
   flex: 1;
   min-width: 0;
-}
-
-.econ-country {
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-right: 6px;
 }
 
 .econ-title {
