@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Save, Check, LogOut } from 'lucide-react';
+import { ChevronLeft, Save, Check } from 'lucide-react';
 import { FilterEditor } from '../components/system/FilterEditor';
 import { SetupEditor } from '../components/system/SetupEditor';
 import { MarkdownEditor } from '../components/system/MarkdownEditor';
 import { useTradingSystem } from '../hooks/useTradingSystem';
-import { useLogout } from '../hooks/useAuth';
-
 const TABS = [
   { id: 'context', label: '市场过滤器' },
   { id: 'setups', label: 'Setups' },
@@ -19,7 +17,6 @@ type TabId = (typeof TABS)[number]['id'];
 
 export function SystemEditorPage() {
   const navigate = useNavigate();
-  const logout = useLogout();
   const { system, updateSystem, save, saving, dirty } = useTradingSystem();
   const [activeTab, setActiveTab] = useState<TabId>('context');
   const [justSaved, setJustSaved] = useState(false);
@@ -49,9 +46,6 @@ export function SystemEditorPage() {
           >
             {justSaved ? <Check size={16} /> : <Save size={16} />}
             <span>{justSaved ? '已保存' : saving ? '保存中...' : '保存'}</span>
-          </button>
-          <button className="header-btn" onClick={logout} title="登出">
-            <LogOut size={16} />
           </button>
         </div>
       </header>

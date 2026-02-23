@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, LogOut, StopCircle, ClipboardCheck } from 'lucide-react';
-import { useLogout } from '../hooks/useAuth';
+import { ChevronLeft, StopCircle, ClipboardCheck } from 'lucide-react';
 import { useSession } from '../hooks/useSession';
 import { SessionTimer } from '../components/session/SessionTimer';
 import { TradeList } from '../components/session/TradeList';
@@ -11,7 +10,6 @@ import { EconomicCalendar } from '../components/session/EconomicCalendar';
 export function SessionPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const logout = useLogout();
   const [endNotes, setEndNotes] = useState('');
   const [showEndConfirm, setShowEndConfirm] = useState(false);
 
@@ -94,9 +92,6 @@ export function SessionPage() {
               <span>结束</span>
             </button>
           )}
-          <button className="header-btn" onClick={logout} title="登出">
-            <LogOut size={14} />
-          </button>
         </div>
       </header>
 

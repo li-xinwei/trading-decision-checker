@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ChevronLeft, History, RotateCcw, LogOut } from 'lucide-react';
+import { ChevronLeft, History, RotateCcw } from 'lucide-react';
 import { ProgressBar } from '../components/ProgressBar';
 import { QuestionCard } from '../components/QuestionCard';
 import { ResultCard } from '../components/ResultCard';
 import { HistoryPanel } from '../components/HistoryPanel';
 import { useDecisionTree } from '../hooks/useDecisionTree';
 import { useTradingSystem } from '../hooks/useTradingSystem';
-import { useLogout } from '../hooks/useAuth';
 import { createTrade } from '../lib/supabase';
 import type { Trade } from '../types/trading';
 
@@ -15,7 +14,6 @@ export function CheckPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get('sessionId');
-  const logout = useLogout();
   const { system } = useTradingSystem();
   const {
     currentNode,
@@ -83,9 +81,6 @@ export function CheckPage() {
               <span>重来</span>
             </button>
           )}
-          <button className="header-btn" onClick={logout} title="登出">
-            <LogOut size={16} />
-          </button>
         </div>
       </header>
 

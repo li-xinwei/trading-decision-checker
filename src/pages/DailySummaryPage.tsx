@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, LogOut, Sparkles, Save, Check } from 'lucide-react';
+import { ChevronLeft, Sparkles, Save, Check } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { useLogout } from '../hooks/useAuth';
 import { formatDailySummary } from '../lib/openai';
 import {
   fetchAllTrades,
@@ -17,7 +16,6 @@ function todayStr(): string {
 
 export function DailySummaryPage() {
   const navigate = useNavigate();
-  const logout = useLogout();
 
   const [date, setDate] = useState(todayStr());
   const [rawNotes, setRawNotes] = useState('');
@@ -84,9 +82,6 @@ export function DailySummaryPage() {
         </div>
         <span className="page-title">每日总结</span>
         <div className="header-actions">
-          <button className="header-btn" onClick={logout} title="登出">
-            <LogOut size={16} />
-          </button>
         </div>
       </header>
 

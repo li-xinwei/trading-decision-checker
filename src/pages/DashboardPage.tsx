@@ -1,10 +1,8 @@
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, PlayCircle, FileText, BarChart3, LogOut } from 'lucide-react';
-import { useLogout } from '../hooks/useAuth';
+import { BookOpen, PlayCircle, FileText, BarChart3 } from 'lucide-react';
 
 export function DashboardPage() {
   const navigate = useNavigate();
-  const logout = useLogout();
 
   const cards = [
     {
@@ -44,10 +42,6 @@ export function DashboardPage() {
           <h1>Trading Portal</h1>
           <p>选择一个功能开始</p>
         </div>
-        <button className="logout-btn" onClick={logout}>
-          <LogOut size={16} />
-          <span>登出</span>
-        </button>
       </div>
 
       <div className="dashboard-grid">

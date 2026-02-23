@@ -805,94 +805,6 @@
   opacity: 0.85;
 }
 
-/* ==================== Login Page ==================== */
-.login-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-.login-card {
-  width: 100%;
-  max-width: 320px;
-  text-align: center;
-}
-
-.login-logo {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
-  margin-bottom: 20px;
-}
-
-.login-card h1 {
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  margin-bottom: 4px;
-}
-
-.login-card p {
-  color: var(--text-muted);
-  font-size: 14px;
-  margin-bottom: 24px;
-}
-
-.login-input-group {
-  margin-bottom: 16px;
-}
-
-.login-input {
-  width: 100%;
-  padding: 14px 18px;
-  background: var(--bg-card);
-  border: 0.5px solid var(--border-color);
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
-  font-size: 16px;
-  font-family: inherit;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.login-input:focus {
-  border-color: var(--accent-blue);
-}
-
-.login-input::placeholder {
-  color: var(--text-muted);
-}
-
-.login-btn {
-  width: 100%;
-  padding: 14px;
-  background: var(--accent-blue);
-  border: none;
-  border-radius: var(--radius-md);
-  color: white;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-
-.login-btn:hover {
-  opacity: 0.85;
-}
-
-.login-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.login-error {
-  color: var(--nogo-color);
-  font-size: 14px;
-  margin-top: 16px;
-}
-
 /* ==================== Dashboard ==================== */
 .dashboard-page {
   max-width: 640px;
@@ -919,25 +831,6 @@
   color: var(--text-muted);
 }
 
-.logout-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: rgba(118, 118, 128, 0.12);
-  border: none;
-  border-radius: var(--radius-sm);
-  color: var(--text-muted);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.logout-btn:hover {
-  background: var(--nogo-bg);
-  color: var(--nogo-color);
-}
 
 .dashboard-grid {
   display: grid;

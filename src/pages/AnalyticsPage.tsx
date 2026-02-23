@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, LogOut } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -15,7 +15,6 @@ import {
   LineChart,
   Line,
 } from 'recharts';
-import { useLogout } from '../hooks/useAuth';
 import { fetchAllTrades } from '../lib/supabase';
 import type { Trade } from '../types/trading';
 
@@ -33,7 +32,6 @@ const COLORS = [
 
 export function AnalyticsPage() {
   const navigate = useNavigate();
-  const logout = useLogout();
   const [trades, setTrades] = useState<Trade[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
@@ -126,9 +124,6 @@ export function AnalyticsPage() {
         </div>
         <span className="page-title">系统复盘</span>
         <div className="header-actions">
-          <button className="header-btn" onClick={logout} title="登出">
-            <LogOut size={16} />
-          </button>
         </div>
       </header>
 
