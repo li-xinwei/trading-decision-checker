@@ -1,41 +1,56 @@
 :root {
-  --bg-primary: #000000;
-  --bg-secondary: rgba(28, 28, 30, 0.8);
-  --bg-card: #1c1c1e;
-  --bg-card-hover: #2c2c2e;
-  --bg-option: #1c1c1e;
-  --bg-option-hover: #2c2c2e;
+  --bg-primary: #050508;
+  --bg-secondary: #0d0d12;
+  --bg-card: rgba(255, 255, 255, 0.04);
+  --bg-card-hover: rgba(255, 255, 255, 0.07);
+  --bg-glass: rgba(255, 255, 255, 0.05);
+  --bg-glass-hover: rgba(255, 255, 255, 0.08);
 
-  --text-primary: #f5f5f7;
-  --text-secondary: #a1a1a6;
-  --text-muted: #636366;
+  --text-primary: #f0f0f5;
+  --text-secondary: #9898a8;
+  --text-muted: #52525e;
 
-  --border-color: rgba(84, 84, 88, 0.36);
-  --border-hover: rgba(84, 84, 88, 0.56);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.14);
+  --border-glass: rgba(255, 255, 255, 0.12);
 
-  --accent-blue: #0a84ff;
-  --accent-blue-glow: rgba(10, 132, 255, 0.12);
+  --accent-blue: #3b82f6;
+  --accent-blue-light: #60a5fa;
+  --accent-blue-glow: rgba(59, 130, 246, 0.15);
+  --accent-purple: #8b5cf6;
+  --accent-purple-glow: rgba(139, 92, 246, 0.15);
 
-  --go-color: #30d158;
-  --go-bg: rgba(48, 209, 88, 0.1);
-  --go-border: rgba(48, 209, 88, 0.24);
+  --gradient-blue: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  --gradient-blue-subtle: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(139,92,246,0.15));
+  --gradient-glow: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.08));
 
-  --caution-color: #ffd60a;
-  --caution-bg: rgba(255, 214, 10, 0.1);
-  --caution-border: rgba(255, 214, 10, 0.24);
+  --go-color: #34d399;
+  --go-bg: rgba(52, 211, 153, 0.1);
+  --go-border: rgba(52, 211, 153, 0.2);
+  --go-glow: rgba(52, 211, 153, 0.06);
 
-  --nogo-color: #ff453a;
-  --nogo-bg: rgba(255, 69, 58, 0.1);
-  --nogo-border: rgba(255, 69, 58, 0.24);
+  --caution-color: #fbbf24;
+  --caution-bg: rgba(251, 191, 36, 0.1);
+  --caution-border: rgba(251, 191, 36, 0.2);
 
+  --nogo-color: #f87171;
+  --nogo-bg: rgba(248, 113, 113, 0.1);
+  --nogo-border: rgba(248, 113, 113, 0.2);
+
+  --radius-xs: 6px;
   --radius-sm: 10px;
   --radius-md: 14px;
   --radius-lg: 18px;
-  --radius-xl: 22px;
+  --radius-xl: 24px;
 
-  --shadow-sm: none;
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --blur-sm: blur(8px);
+  --blur-md: blur(16px);
+  --blur-lg: blur(24px);
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.6);
+  --shadow-glow-blue: 0 0 24px rgba(59,130,246,0.2);
 
   font-family: -apple-system, 'SF Pro Display', 'SF Pro Text', 'Inter', 'Helvetica Neue', system-ui, sans-serif;
   line-height: 1.55;
@@ -58,6 +73,10 @@
 body {
   min-height: 100vh;
   background: var(--bg-primary);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(59,130,246,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(139,92,246,0.05) 0%, transparent 60%);
+  background-attachment: fixed;
 }
 
 #root {
