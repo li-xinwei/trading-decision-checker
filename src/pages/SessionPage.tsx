@@ -4,7 +4,6 @@ import { ChevronLeft, StopCircle, ClipboardCheck } from 'lucide-react';
 import { useSession } from '../hooks/useSession';
 import { SessionTimer } from '../components/session/SessionTimer';
 import { TradeList } from '../components/session/TradeList';
-import { TradingViewWidget } from '../components/session/TradingViewWidget';
 import { EconomicCalendar } from '../components/session/EconomicCalendar';
 
 export function SessionPage() {
@@ -96,23 +95,18 @@ export function SessionPage() {
       </header>
 
       <div className="session-content">
-        <div className="session-main">
-          <div className="session-chart-area">
-            <TradingViewWidget />
-          </div>
-          <div className="session-sidebar">
-            {isActive && (
-              <button
-                className="check-trade-btn"
-                onClick={() => navigate(`/check?sessionId=${session.id}`)}
-              >
-                <ClipboardCheck size={16} />
-                开单检查
-              </button>
-            )}
-            <TradeList trades={trades} onClose={closeTrade} />
-            <EconomicCalendar />
-          </div>
+        <div className="session-main-no-chart">
+          {isActive && (
+            <button
+              className="check-trade-btn"
+              onClick={() => navigate(`/check?sessionId=${session.id}`)}
+            >
+              <ClipboardCheck size={16} />
+              开单检查
+            </button>
+          )}
+          <TradeList trades={trades} onClose={closeTrade} />
+          <EconomicCalendar />
         </div>
       </div>
 

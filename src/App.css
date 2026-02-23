@@ -1330,23 +1330,13 @@
   overflow: auto;
 }
 
-.session-main {
-  display: grid;
-  grid-template-columns: 1fr 300px;
+.session-main-no-chart {
+  display: flex;
+  flex-direction: column;
   gap: 10px;
+  max-width: 480px;
+  margin: 0 auto;
   height: calc(100vh - 50px);
-}
-
-.session-chart-area {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.session-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
   overflow-y: auto;
 }
 
@@ -1380,22 +1370,6 @@
   min-height: 100vh;
   color: var(--text-muted);
   font-size: 15px;
-}
-
-/* ==================== TradingView Widget ==================== */
-.tv-widget {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background: #000;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  border: 0.5px solid var(--border-color);
-}
-
-.tv-chart-container {
-  flex: 1;
-  min-height: 360px;
 }
 
 /* ==================== Economic Calendar ==================== */
@@ -2375,11 +2349,9 @@
 }
 
 @media (max-width: 900px) {
-  .session-main {
-    grid-template-columns: 1fr;
-    height: auto;
+  .session-main-no-chart {
+    max-width: 100%;
   }
-  .session-chart-area { min-height: 400px; }
   .summary-content { grid-template-columns: 1fr; }
   .summary-editor-area { grid-template-columns: 1fr; }
   .analytics-overview { grid-template-columns: repeat(2, 1fr); }
