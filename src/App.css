@@ -1407,6 +1407,8 @@
   padding: 10px;
   display: flex;
   flex-direction: column;
+  height: 340px;
+  flex-shrink: 0;
 }
 
 .econ-header {
@@ -1419,11 +1421,12 @@
   letter-spacing: 0.06em;
   color: var(--text-muted);
   margin-bottom: 8px;
+  flex-shrink: 0;
 }
 
 .econ-iframe-wrap {
   flex: 1;
-  min-height: 220px;
+  min-height: 0;
   border-radius: var(--radius-xs);
   overflow: hidden;
 }
