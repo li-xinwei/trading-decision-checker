@@ -3,10 +3,9 @@
 
 #tdc-toggle-btn {
   position: fixed;
-  /* Sits just below TradingView's top toolbar / order entry Buy&Sell buttons */
-  /* left: 60px clears TradingView's ~56px left toolbar */
-  top: 120px;
-  left: 60px;
+  /* Below TradingView's bottom-left toolbar button (⬇️2) at ~305-365px */
+  top: 370px;
+  left: 65px;
   width: 36px;
   height: 36px;
   border-radius: 8px;
@@ -40,8 +39,8 @@
 
 #tdc-panel {
   position: fixed;
-  top: 164px;
-  left: 60px;
+  top: 370px;
+  left: 108px;
   width: 320px;
   max-height: 80vh;
   z-index: 2147483639;
