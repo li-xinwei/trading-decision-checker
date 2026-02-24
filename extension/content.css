@@ -3,8 +3,7 @@
 
 #tdc-toggle-btn {
   position: fixed;
-  /* Below TradingView's bottom-left toolbar button (⬇️2) at ~305-365px */
-  top: 370px;
+  top: 180px;
   left: 65px;
   width: 36px;
   height: 36px;
@@ -39,7 +38,7 @@
 
 #tdc-panel {
   position: fixed;
-  top: 370px;
+  top: 180px;
   left: 108px;
   width: 320px;
   max-height: 80vh;
