@@ -117,7 +117,7 @@ function togglePanel(): void {
 // ==================== Draggable ====================
 
 function makeDraggable(target: HTMLElement, handle: HTMLElement): void {
-  let startX = 0, startY = 0, startLeft = 12, startTop = 164;
+  let startX = 0, startY = 0, startLeft = 60, startTop = 164;
 
   handle.addEventListener('mousedown', (e: MouseEvent) => {
     e.preventDefault();
