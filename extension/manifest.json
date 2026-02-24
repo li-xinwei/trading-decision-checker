@@ -4,7 +4,10 @@
   "version": "1.0.0",
   "description": "开单前检查 — 在 TradingView 上运行交易决策树",
   "permissions": ["sidePanel", "storage"],
-  "host_permissions": ["https://*.tradingview.com/*"],
+  "host_permissions": [
+    "https://*.tradingview.com/*",
+    "https://*.supabase.co/*"
+  ],
   "side_panel": {
     "default_path": "sidepanel.html"
   },
