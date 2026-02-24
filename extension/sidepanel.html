@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>开单检查</title>
+  <link rel="stylesheet" href="sidepanel.css" />
+</head>
+<body>
+  <div id="app">
+    <header id="header">
+      <h1 class="header-title">开单检查</h1>
+      <button id="reset-btn" class="header-btn hidden" title="重新检查">↺ 重来</button>
+    </header>
+    <div id="progress-area" class="hidden">
+      <div class="progress-info">
+        <span id="progress-step"></span>
+        <span id="progress-category"></span>
+      </div>
+      <div class="progress-bar">
+        <div id="progress-fill" class="progress-fill"></div>
+      </div>
+    </div>
+    <main id="main"></main>
+  </div>
+  <script src="dist/sidepanel.js"></script>
+</body>
+</html>
