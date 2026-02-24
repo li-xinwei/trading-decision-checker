@@ -11,7 +11,11 @@ import { loadSystemData } from './supabase';
 
 let engine: DecisionEngine | null = null;
 let panelVisible = false;
-let checkPassed = false;
+
+// Lock states: 'unchecked' = no check done yet (unlocked),
+// 'passed' = GO result (unlocked), 'blocked' = CAUTION/NO-GO (locked)
+type LockState = 'unchecked' | 'passed' | 'blocked';
+let lockState: LockState = 'unchecked';
 
 // Panel DOM refs (set after buildPanel)
 let panel: HTMLElement;
@@ -113,23 +117,23 @@ function togglePanel(): void {
 // ==================== Draggable ====================
 
 function makeDraggable(target: HTMLElement, handle: HTMLElement): void {
-  let startX = 0, startY = 0, startRight = 20, startBottom = 140;
+  let startX = 0, startY = 0, startLeft = 12, startTop = 164;
 
   handle.addEventListener('mousedown', (e: MouseEvent) => {
     e.preventDefault();
     const rect = target.getBoundingClientRect();
     startX = e.clientX;
     startY = e.clientY;
-    startRight = window.innerWidth - rect.right;
-    startBottom = window.innerHeight - rect.bottom;
+    startLeft = rect.left;
+    startTop = rect.top;
 
     function onMove(ev: MouseEvent) {
       const dx = ev.clientX - startX;
       const dy = ev.clientY - startY;
-      const newRight = Math.max(0, startRight - dx);
-      const newBottom = Math.max(0, startBottom - dy);
-      target.style.right = `${newRight}px`;
-      target.style.bottom = `${newBottom}px`;
+      const newLeft = Math.max(0, Math.min(window.innerWidth - 320, startLeft + dx));
+      const newTop = Math.max(0, Math.min(window.innerHeight - 100, startTop + dy));
+      target.style.left = `${newLeft}px`;
+      target.style.top = `${newTop}px`;
     }
 
     function onUp() {
@@ -166,7 +170,7 @@ function doReset(): void {
   renderReady();
   progressArea.classList.add('tdc-hidden');
   resetBtn.classList.add('tdc-hidden');
-  checkPassed = false;
+  lockState = 'unchecked';
   updateLockState();
   chrome.runtime.sendMessage({ type: 'CHECK_RESET' });
 }
@@ -180,10 +184,10 @@ function onStateChange(state: EngineState): void {
     resetBtn.classList.remove('tdc-hidden');
 
     if (state.result.type === 'go') {
-      checkPassed = true;
+      lockState = 'passed';
       chrome.runtime.sendMessage({ type: 'CHECK_PASSED' });
     } else {
-      checkPassed = false;
+      lockState = 'blocked';
       chrome.runtime.sendMessage({ type: 'CHECK_RESET' });
     }
     updateLockState();
@@ -462,7 +466,8 @@ function updateLockState(): void {
   const buttons = findTradeButtons();
   if (buttons.length === 0) return;
   for (const btn of buttons) {
-    checkPassed ? unlockButton(btn) : lockButton(btn);
+    // Only lock when a check was done and result was not GO
+    lockState === 'blocked' ? lockButton(btn) : unlockButton(btn);
   }
 }
 
@@ -470,11 +475,11 @@ function updateLockState(): void {
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.type === 'CHECK_PASSED') {
-    checkPassed = true;
+    lockState = 'passed';
     updateLockState();
     sendResponse({ ok: true });
   } else if (message.type === 'CHECK_RESET') {
-    checkPassed = false;
+    lockState = 'unchecked';
     updateLockState();
     sendResponse({ ok: true });
   }
