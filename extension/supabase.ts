@@ -4,8 +4,9 @@
 
 import type { TradingSystemData } from './types';
 
-const SUPABASE_URL = '__SUPABASE_URL__';
-const SUPABASE_ANON_KEY = '__SUPABASE_ANON_KEY__';
+const SUPABASE_URL = 'https://thwqzrxakrplxsiahili.supabase.co';
+const SUPABASE_ANON_KEY =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRod3F6cnhha3JwbHhzaWFoaWxpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2MTQ1NjUsImV4cCI6MjA4NzE5MDU2NX0.TtUQMtdizO7q101HC4DQiO79y74nBcaIbKnXhmVlnms';
 
 const SYSTEM_ID = 'default';
 const CACHE_KEY = 'tdc_trading_system';
