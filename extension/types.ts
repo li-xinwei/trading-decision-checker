@@ -70,3 +70,22 @@ export type ExtensionMessage =
   | { type: 'CHECK_PASSED' }
   | { type: 'CHECK_RESET' }
   | { type: 'PING' };
+
+// ==================== CrossTrade API ====================
+
+export interface CrossTradeConfig {
+  secretKey: string;
+  accountName: string;
+}
+
+export interface CrossTradePosition {
+  type: string;
+  account: string;
+  instrument: string;
+  instrumentType: string;
+  marketPosition: string; // "Long" | "Short" | "Flat"
+  quantity: number;
+  averagePrice: number;
+  marketPrice: number;
+  unrealizedProfitLoss: number;
+}

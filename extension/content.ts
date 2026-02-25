@@ -6,16 +6,17 @@ import { DecisionEngine } from './decisionEngine';
 import type { EngineState } from './decisionEngine';
 import type { ResultNode, DecisionRecord } from './types';
 import { loadSystemData } from './supabase';
+import { crosstradeHasPositions } from './crosstrade';
 
 // ==================== Panel State ====================
 
 let engine: DecisionEngine | null = null;
 let panelVisible = false;
 
-// Lock states: 'unchecked' = no check done yet (unlocked),
-// 'passed' = GO result (unlocked), 'blocked' = CAUTION/NO-GO (locked)
-type LockState = 'unchecked' | 'passed' | 'blocked';
-let lockState: LockState = 'unchecked';
+// Lock states: 'blocked' = default when broker connected (locked),
+// 'passed' = GO result (unlocked)
+type LockState = 'passed' | 'blocked';
+let lockState: LockState = 'blocked';
 
 // Panel DOM refs (set after buildPanel)
 let panel: HTMLElement;
@@ -170,7 +171,7 @@ function doReset(): void {
   renderReady();
   progressArea.classList.add('tdc-hidden');
   resetBtn.classList.add('tdc-hidden');
-  lockState = 'unchecked';
+  lockState = 'blocked';
   updateLockState();
   chrome.runtime.sendMessage({ type: 'CHECK_RESET' });
 }
@@ -428,13 +429,13 @@ function clearMain(): void {
 // ==================== Trade Button Locking ====================
 
 const ORDER_BUTTON_SELECTORS = [
-  '[data-name="submit-button-buy"]',
-  '[data-name="submit-button-sell"]',
-  'button[class*="buyButton"]',
-  'button[class*="sellButton"]',
-  '.order-panel button[class*="submit"]',
-  '.bottomWidgetBar button[class*="buy"]',
-  '.bottomWidgetBar button[class*="sell"]',
+  // Chart legend buy/sell market buttons
+  'div[class*="buyButton-"]',
+  'div[class*="sellButton-"]',
+  // Footer trade button
+  '#footer-chart-panel button',
+  // Header toolbar trade button
+  '#header-toolbar-trade-desktop > button',
 ];
 
 function findTradeButtons(): HTMLElement[] {
@@ -445,30 +446,100 @@ function findTradeButtons(): HTMLElement[] {
   return buttons;
 }
 
+// Broker is connected if TradingView shows the bottom trading panel
+function isBrokerConnected(): boolean {
+  const bottomContent = document.querySelector('#bottom-area .bottom-widgetbar-content');
+  const footerTradeTab = document.querySelector('#footer-chart-panel .tabbar-n3UmcVi3');
+  return !!(bottomContent || footerTradeTab);
+}
+
+// Check if there are open positions — DOM fallback
+function hasOpenPositionsDOM(): boolean {
+  const rows = document.querySelectorAll(
+    '#bottom-area .bottom-widgetbar-content tbody tr td'
+  );
+  return rows.length > 0;
+}
+
+// Check positions: CrossTrade API first, DOM fallback
+async function hasOpenPositions(): Promise<boolean> {
+  const apiResult = await crosstradeHasPositions();
+  if (apiResult !== null) return apiResult;
+  return hasOpenPositionsDOM();
+}
+
+// Store click blockers so we can remove them on unlock
+const blockerMap = new WeakMap<HTMLElement, (e: Event) => void>();
+
 function lockButton(btn: HTMLElement): void {
   if (btn.classList.contains('tdc-locked')) return;
   btn.classList.add('tdc-locked');
+
+  // Overlay with red ✕
   const overlay = document.createElement('div');
   overlay.className = 'tdc-lock-overlay';
   overlay.setAttribute('data-tdc', 'overlay');
-  overlay.textContent = '\uD83D\uDD12 请先完成检查';
+  overlay.textContent = '✕';
   btn.style.position = 'relative';
   btn.appendChild(overlay);
+
+  // Block all clicks at capture phase to truly prevent interaction
+  const blocker = (e: Event) => {
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    e.preventDefault();
+  };
+  btn.addEventListener('click', blocker, true);
+  btn.addEventListener('mousedown', blocker, true);
+  btn.addEventListener('mouseup', blocker, true);
+  btn.addEventListener('pointerdown', blocker, true);
+  btn.addEventListener('pointerup', blocker, true);
+  blockerMap.set(btn, blocker);
 }
 
 function unlockButton(btn: HTMLElement): void {
   if (!btn.classList.contains('tdc-locked')) return;
   btn.classList.remove('tdc-locked');
   btn.querySelector('[data-tdc="overlay"]')?.remove();
+
+  // Remove click blockers
+  const blocker = blockerMap.get(btn);
+  if (blocker) {
+    btn.removeEventListener('click', blocker, true);
+    btn.removeEventListener('mousedown', blocker, true);
+    btn.removeEventListener('mouseup', blocker, true);
+    btn.removeEventListener('pointerdown', blocker, true);
+    btn.removeEventListener('pointerup', blocker, true);
+    blockerMap.delete(btn);
+  }
 }
 
-function updateLockState(): void {
+async function updateLockState(): Promise<void> {
   const buttons = findTradeButtons();
   if (buttons.length === 0) return;
-  for (const btn of buttons) {
-    // Only lock when a check was done and result was not GO
-    lockState === 'blocked' ? lockButton(btn) : unlockButton(btn);
+
+  // No broker connected → buttons stay unlocked (they guide user to connect)
+  if (!isBrokerConnected()) {
+    for (const btn of buttons) unlockButton(btn);
+    return;
   }
+
+  // Broker connected + check passed but position opened → re-lock
+  if (lockState === 'passed' && await hasOpenPositions()) {
+    lockState = 'blocked';
+  }
+
+  // Broker connected: lock unless check passed
+  for (const btn of buttons) {
+    lockState === 'passed' ? unlockButton(btn) : lockButton(btn);
+  }
+}
+
+// Debounced version for MutationObserver (avoid flooding API calls)
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+function debouncedUpdateLockState(): void {
+  if (debounceTimer) clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => updateLockState(), 500);
 }
 
 // ==================== Message Listener ====================
@@ -479,7 +550,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     updateLockState();
     sendResponse({ ok: true });
   } else if (message.type === 'CHECK_RESET') {
-    lockState = 'unchecked';
+    lockState = 'blocked';
     updateLockState();
     sendResponse({ ok: true });
   }
@@ -487,9 +558,9 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
 // ==================== DOM Observer ====================
 
-const observer = new MutationObserver(updateLockState);
+const observer = new MutationObserver(debouncedUpdateLockState);
 observer.observe(document.body, { childList: true, subtree: true });
-setInterval(updateLockState, 2000);
+setInterval(() => updateLockState(), 5000);
 
 // ==================== Boot ====================
 init();
