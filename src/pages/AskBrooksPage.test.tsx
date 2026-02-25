@@ -26,6 +26,14 @@ function setupWithFakeTimers() {
   return userEvent.setup({ delay: null });  // delay:null means no between-key delays
 }
 
+// Advance the typewriter to completion.
+// Typewriter: 3 chars per 8ms tick. Drive N steps at 8ms each.
+async function driveTypewriter(steps: number) {
+  for (let i = 0; i < steps; i++) {
+    await act(async () => { vi.advanceTimersByTime(8); });
+  }
+}
+
 describe('AskBrooksPage', () => {
   beforeEach(() => {
     mockNavigate.mockClear();
@@ -69,6 +77,11 @@ describe('AskBrooksPage', () => {
     expect(screen.getByText('System')).toBeInTheDocument();
     expect(screen.getByText('Summary')).toBeInTheDocument();
     expect(screen.getByText('Analytics')).toBeInTheDocument();
+  });
+
+  it('renders History nav link', () => {
+    renderPage();
+    expect(screen.getByText(/History/i)).toBeInTheDocument();
   });
 
   it('navigates to session page when Session link clicked', async () => {
@@ -141,12 +154,12 @@ describe('AskBrooksPage', () => {
 
     // Advance past 1.5s mock delay
     await act(async () => { vi.advanceTimersByTime(2000); });
-    // Drive the typewriter chain by repeatedly advancing 18ms at a time
-    // The heading is ~36 chars, so 36 steps × 18ms = 648ms of typewriter
-    for (let i = 0; i < 50; i++) {
-      await act(async () => { vi.advanceTimersByTime(18); });
-    }
 
+    // Drive the typewriter to completion:
+    // Response is ~570 chars, 3 chars/8ms → ~190 steps. Use 250 for safety.
+    await driveTypewriter(250);
+
+    // After typing completes, ReactMarkdown renders the heading
     expect(screen.getByRole('heading', { name: /Strong Breakout/i })).toBeInTheDocument();
   });
 
@@ -188,11 +201,9 @@ describe('AskBrooksPage', () => {
 
     // Advance past 1.5s mock delay
     await act(async () => { vi.advanceTimersByTime(2000); });
-    // Drive the typewriter chain 18ms at a time. The mock response is ~700 chars,
-    // so ~700 steps at 18ms = 12.6s. Advance 800 steps to fully complete typing.
-    for (let i = 0; i < 800; i++) {
-      await act(async () => { vi.advanceTimersByTime(18); });
-    }
+
+    // Drive the typewriter to full completion (~250 steps at 8ms, 3 chars/step)
+    await driveTypewriter(250);
 
     expect(screen.getByText('Trading Price Action Trends')).toBeInTheDocument();
   });
@@ -206,5 +217,43 @@ describe('AskBrooksPage', () => {
 
     // User message added synchronously → chat view with follow-up input appears
     expect(screen.getByPlaceholderText(/ask a follow-up/i)).toBeInTheDocument();
+  });
+
+  // ---------- History ----------
+
+  it('opens history panel when History button clicked', async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(screen.getByText(/History/i));
+
+    expect(screen.getByText('No conversations yet')).toBeInTheDocument();
+  });
+
+  it('closes history panel when overlay clicked', async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(screen.getByText(/History/i));
+    // Click the overlay (not the panel) — the overlay is the parent element
+    const overlay = document.querySelector('.ab-history-overlay');
+    if (overlay) await user.click(overlay);
+
+    expect(screen.queryByText('No conversations yet')).not.toBeInTheDocument();
+  });
+
+  it('saves session to history after first question', async () => {
+    const user = setupWithFakeTimers();
+    renderPage();
+
+    const input = screen.getByPlaceholderText(/ask about price action/i);
+    await user.type(input, 'What is a trend bar?{enter}');
+
+    // The session is created immediately when the first user message is added
+    // Open history panel to verify — session entry appears in the panel
+    await user.click(screen.getByText(/History/i));
+    const panel = document.querySelector('.ab-history-list');
+    expect(panel).not.toBeNull();
+    expect(panel!.textContent).toContain('What is a trend bar?');
   });
 });
