@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import type { Components } from 'react-markdown';
@@ -18,22 +18,42 @@ interface Message {
   sources?: string[];
 }
 
-interface PersistedState {
+interface Session {
+  id: string;
+  startedAt: number;
+  firstQuestion: string;
   messages: Message[];
   conversationId: string | null;
 }
 
 const API_BASE = import.meta.env.VITE_ASK_BROOKS_API_URL as string || '';
 const LS_KEY = 'ask-brooks-v1';
+const LS_SESSIONS_KEY = 'ask-brooks-sessions-v1';
 
-function loadPersistedState(): PersistedState {
+function loadCurrentState(): { messages: Message[]; conversationId: string | null } {
   try {
     const raw = localStorage.getItem(LS_KEY);
     if (!raw) return { messages: [], conversationId: null };
-    return JSON.parse(raw) as PersistedState;
+    return JSON.parse(raw);
   } catch {
     return { messages: [], conversationId: null };
   }
+}
+
+function loadSessions(): Session[] {
+  try {
+    const raw = localStorage.getItem(LS_SESSIONS_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+function saveSessions(sessions: Session[]) {
+  // Keep at most 50 sessions
+  const trimmed = sessions.slice(-50);
+  localStorage.setItem(LS_SESSIONS_KEY, JSON.stringify(trimmed));
 }
 
 // ---- Citation helpers ----
@@ -53,38 +73,67 @@ function parseCitations(text: string): Array<string | number> {
   return parts;
 }
 
-function CitationBadge({ num, sources }: { num: number; sources: string[] }) {
+interface TooltipState {
+  text: string;
+  x: number;
+  y: number;
+}
+
+function CitationBadge({
+  num,
+  sources,
+  onTooltip,
+}: {
+  num: number;
+  sources: string[];
+  onTooltip: (state: TooltipState | null) => void;
+}) {
   const label = sources[num - 1] ?? `Source ${num}`;
   return (
-    <span className="ab-citation" data-tooltip={label}>
+    <span
+      className="ab-citation"
+      onMouseEnter={(e) => {
+        const rect = (e.target as HTMLElement).getBoundingClientRect();
+        onTooltip({
+          text: label,
+          x: rect.left + rect.width / 2,
+          y: rect.top - 8,
+        });
+      }}
+      onMouseLeave={() => onTooltip(null)}
+    >
       {num}
     </span>
   );
 }
 
-function renderWithCitations(children: React.ReactNode, sources: string[]): React.ReactNode {
-  return (Array.isArray(children) ? children : [children]).map((child, i) => {
-    if (typeof child === 'string') {
-      const tokens = parseCitations(child);
-      if (tokens.length === 1 && typeof tokens[0] === 'string') return child;
-      return tokens.map((token, j) =>
-        typeof token === 'number'
-          ? <CitationBadge key={`${i}-${j}`} num={token} sources={sources} />
-          : <span key={`${i}-${j}`}>{token}</span>
-      );
-    }
-    return child;
-  });
-}
+function makeMarkdownComponents(
+  sources: string[],
+  onTooltip: (state: TooltipState | null) => void
+): Components {
+  function renderWithCitations(children: React.ReactNode): React.ReactNode {
+    return (Array.isArray(children) ? children : [children]).map((child, i) => {
+      if (typeof child === 'string') {
+        const tokens = parseCitations(child);
+        if (tokens.length === 1 && typeof tokens[0] === 'string') return child;
+        return tokens.map((token, j) =>
+          typeof token === 'number' ? (
+            <CitationBadge key={`${i}-${j}`} num={token} sources={sources} onTooltip={onTooltip} />
+          ) : (
+            <span key={`${i}-${j}`}>{token}</span>
+          )
+        );
+      }
+      return child;
+    });
+  }
 
-function makeMarkdownComponents(sources: string[]): Components {
   return {
-    // Destructure `node` to prevent it being spread onto the DOM <p> element
     p: ({ children, node: _node, ...props }) => (
-      <p {...props}>{renderWithCitations(children, sources)}</p>
+      <p {...props}>{renderWithCitations(children)}</p>
     ),
     li: ({ children, node: _node, ...props }) => (
-      <li {...props}>{renderWithCitations(children, sources)}</li>
+      <li {...props}>{renderWithCitations(children)}</li>
     ),
   };
 }
@@ -92,14 +141,24 @@ function makeMarkdownComponents(sources: string[]): Components {
 export function AskBrooksPage() {
   const navigate = useNavigate();
 
-  const [messages, setMessages] = useState<Message[]>(() => loadPersistedState().messages);
-  const [conversationId, setConversationId] = useState<string | null>(() => loadPersistedState().conversationId);
+  const [messages, setMessages] = useState<Message[]>(() => loadCurrentState().messages);
+  const [conversationId, setConversationId] = useState<string | null>(() => loadCurrentState().conversationId);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
 
   // Typewriter state
   const [typingIndex, setTypingIndex] = useState<number | null>(null);
   const [displayedText, setDisplayedText] = useState('');
+
+  // History panel
+  const [showHistory, setShowHistory] = useState(false);
+  const [sessions, setSessions] = useState<Session[]>(() => loadSessions());
+
+  // Citation tooltip (React-managed, position: fixed)
+  const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+
+  // Current session id (set when the first message is sent)
+  const currentSessionIdRef = useRef<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -111,7 +170,7 @@ export function AskBrooksPage() {
     messagesEndRef.current?.scrollIntoView?.({ behavior: 'smooth' });
   }, [messages, displayedText]);
 
-  // Typewriter loop: advance one character every 18ms
+  // Typewriter loop: advance 3 characters every 8ms (smooth & fast)
   useEffect(() => {
     if (typingIndex === null) return;
     const fullText = messages[typingIndex]?.content ?? '';
@@ -120,15 +179,30 @@ export function AskBrooksPage() {
       return;
     }
     const id = setTimeout(() => {
-      setDisplayedText(fullText.slice(0, displayedText.length + 1));
-    }, 18);
+      setDisplayedText(fullText.slice(0, displayedText.length + 3));
+    }, 8);
     return () => clearTimeout(id);
   }, [typingIndex, displayedText, messages]);
 
-  // Persist to localStorage only after typing is complete
+  // Persist current conversation to localStorage after typing completes
   useEffect(() => {
     if (typingIndex !== null) return;
     localStorage.setItem(LS_KEY, JSON.stringify({ messages, conversationId }));
+
+    // Also update the session record for this conversation
+    if (messages.length > 0 && currentSessionIdRef.current) {
+      const sid = currentSessionIdRef.current;
+      setSessions((prev) => {
+        const idx = prev.findIndex((s) => s.id === sid);
+        if (idx >= 0) {
+          const updated = [...prev];
+          updated[idx] = { ...updated[idx], messages, conversationId };
+          saveSessions(updated);
+          return updated;
+        }
+        return prev;
+      });
+    }
   }, [messages, conversationId, typingIndex]);
 
   function startTypewriter(msgIndex: number) {
@@ -136,13 +210,39 @@ export function AskBrooksPage() {
     setDisplayedText('');
   }
 
+  const handleTooltip = useCallback((state: TooltipState | null) => {
+    setTooltip(state);
+  }, []);
+
   async function handleSubmit(question?: string) {
     const q = question || input.trim();
     if (!q || loading) return;
 
     setInput('');
     const userMsg: Message = { role: 'user', content: q };
-    setMessages((prev) => [...prev, userMsg]);
+
+    // Initialize session on first message
+    setMessages((prev) => {
+      const next = [...prev, userMsg];
+      if (prev.length === 0) {
+        // Brand-new conversation — create a session record
+        const sid = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+        currentSessionIdRef.current = sid;
+        const newSession: Session = {
+          id: sid,
+          startedAt: Date.now(),
+          firstQuestion: q,
+          messages: next,
+          conversationId: null,
+        };
+        setSessions((prevSessions) => {
+          const updated = [...prevSessions, newSession];
+          saveSessions(updated);
+          return updated;
+        });
+      }
+      return next;
+    });
     setLoading(true);
 
     try {
@@ -204,11 +304,100 @@ export function AskBrooksPage() {
     setConversationId(null);
     setTypingIndex(null);
     setDisplayedText('');
+    currentSessionIdRef.current = null;
     localStorage.removeItem(LS_KEY);
+  }
+
+  function handleLoadSession(session: Session) {
+    setMessages(session.messages);
+    setConversationId(session.conversationId);
+    setTypingIndex(null);
+    setDisplayedText('');
+    currentSessionIdRef.current = session.id;
+    localStorage.setItem(LS_KEY, JSON.stringify({ messages: session.messages, conversationId: session.conversationId }));
+    setShowHistory(false);
+  }
+
+  function handleClearHistory() {
+    setSessions([]);
+    localStorage.removeItem(LS_SESSIONS_KEY);
+  }
+
+  function formatRelativeTime(ts: number): string {
+    const diff = Date.now() - ts;
+    const mins = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return `${mins}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    return `${days}d ago`;
   }
 
   return (
     <div className="ab-page">
+      {/* Citation tooltip (React-managed, position:fixed so it escapes all containers) */}
+      {tooltip && (
+        <div
+          className="ab-tooltip"
+          style={{
+            position: 'fixed',
+            left: tooltip.x,
+            top: tooltip.y,
+            transform: 'translate(-50%, -100%)',
+            zIndex: 9999,
+            pointerEvents: 'none',
+          }}
+        >
+          {tooltip.text}
+        </div>
+      )}
+
+      {/* History panel overlay */}
+      {showHistory && (
+        <div className="ab-history-overlay" onClick={() => setShowHistory(false)}>
+          <div className="ab-history-panel" onClick={(e) => e.stopPropagation()}>
+            <div className="ab-history-header">
+              <h2>History</h2>
+              <div className="ab-history-header-actions">
+                {sessions.length > 0 && (
+                  <button className="ab-history-clear-btn" onClick={handleClearHistory}>
+                    Clear all
+                  </button>
+                )}
+                <button className="ab-history-close-btn" onClick={() => setShowHistory(false)}>
+                  ✕
+                </button>
+              </div>
+            </div>
+            {sessions.length === 0 ? (
+              <div className="ab-history-empty">
+                <div className="ab-history-empty-icon" style={{ fontSize: 36 }}>📖</div>
+                <p>No conversations yet</p>
+                <p className="ab-history-empty-sub">Your past sessions will appear here</p>
+              </div>
+            ) : (
+              <div className="ab-history-list">
+                {[...sessions].reverse().map((session) => (
+                  <button
+                    key={session.id}
+                    className="ab-history-item"
+                    onClick={() => handleLoadSession(session)}
+                  >
+                    <div className="ab-history-item-question">{session.firstQuestion}</div>
+                    <div className="ab-history-item-meta">
+                      <span>{session.messages.length} messages</span>
+                      <span>·</span>
+                      <span>{formatRelativeTime(session.startedAt)}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Nav */}
       <nav className="ab-nav">
         <div className="ab-nav-left">
@@ -216,6 +405,9 @@ export function AskBrooksPage() {
           <span className="ab-nav-wordmark">Ask Brooks</span>
         </div>
         <div className="ab-nav-right">
+          <button className="ab-nav-link" onClick={() => setShowHistory(true)}>
+            History {sessions.length > 0 && <span className="ab-history-count">{sessions.length}</span>}
+          </button>
           {hasConversation && (
             <button className="ab-nav-link ab-nav-link--new" onClick={handleNewChat}>New chat</button>
           )}
@@ -279,7 +471,7 @@ export function AskBrooksPage() {
               {messages.map((msg, i) => {
                 const isTyping = typingIndex === i;
                 const content = isTyping ? displayedText : msg.content;
-                const sources = isTyping ? [] : (msg.sources ?? []);
+                const sources = msg.sources ?? [];
 
                 return (
                   <div key={i} className={`ab-msg ab-msg--${msg.role}`}>
@@ -291,10 +483,17 @@ export function AskBrooksPage() {
                         <p className="ab-msg-user-text">{msg.content}</p>
                       ) : (
                         <div className="ab-msg-answer">
-                          <ReactMarkdown components={makeMarkdownComponents(msg.sources ?? [])}>
-                            {content}
-                          </ReactMarkdown>
-                          {isTyping && <span className="ab-cursor">|</span>}
+                          {isTyping ? (
+                            /* During typing: render plain text to avoid partial-markdown artifacts */
+                            <div className="ab-msg-streaming">{content}</div>
+                          ) : (
+                            /* Typing complete: render full markdown with citations */
+                            <ReactMarkdown
+                              components={makeMarkdownComponents(sources, handleTooltip)}
+                            >
+                              {content}
+                            </ReactMarkdown>
+                          )}
                           {!isTyping && sources.length > 0 && (
                             <div className="ab-sources">
                               <span className="ab-sources-label">Sources</span>
@@ -346,6 +545,7 @@ export function AskBrooksPage() {
           </div>
         )}
       </main>
+
     </div>
   );
 }

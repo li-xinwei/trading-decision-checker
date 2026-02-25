@@ -2751,7 +2751,6 @@
   background: rgba(26, 127, 138, 0.10);
   color: #1a7f8a;
   border: 1px solid rgba(26, 127, 138, 0.18);
-  position: relative;
   transition: background 0.15s;
   user-select: none;
 }
@@ -2760,16 +2759,8 @@
   background: rgba(26, 127, 138, 0.18);
 }
 
-/* Custom CSS tooltip shown on hover */
-.ab-citation::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  max-width: 220px;
-  white-space: normal;
+/* React-managed tooltip rendered at position:fixed — escapes all overflow */
+.ab-tooltip {
   background: #27251e;
   color: #f5f4f0;
   font-size: 12px;
@@ -2777,30 +2768,190 @@
   line-height: 1.4;
   padding: 6px 10px;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.15s;
-  z-index: 200;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+  max-width: 240px;
+  white-space: normal;
+  word-break: break-word;
 }
 
-.ab-citation:hover::after {
-  opacity: 1;
+/* ==================== Ask Brooks — Streaming text (no markdown during typing) ==================== */
+
+.ab-msg-streaming {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #374151;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
-/* ==================== Ask Brooks — Typewriter Cursor ==================== */
+/* ==================== Ask Brooks — History Panel ==================== */
 
-.ab-cursor {
-  display: inline-block;
+.ab-history-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 500;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ab-history-panel {
+  width: 360px;
+  max-width: 100vw;
+  height: 100%;
+  background: #faf9f5;
+  border-left: 1px solid rgba(39, 37, 30, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.1);
+}
+
+.ab-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid rgba(39, 37, 30, 0.08);
+}
+
+.ab-history-header h2 {
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -0.3px;
+  color: #27251e;
+}
+
+.ab-history-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ab-history-clear-btn {
+  padding: 5px 10px;
+  border: 1px solid rgba(39, 37, 30, 0.12);
+  border-radius: 7px;
+  background: transparent;
+  color: #78716c;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.ab-history-clear-btn:hover {
+  background: rgba(220, 38, 38, 0.06);
+  border-color: rgba(220, 38, 38, 0.2);
+  color: #dc2626;
+}
+
+.ab-history-close-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(39, 37, 30, 0.1);
+  border-radius: 50%;
+  background: transparent;
+  color: #78716c;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.ab-history-close-btn:hover {
+  background: rgba(39, 37, 30, 0.06);
+  color: #27251e;
+}
+
+.ab-history-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 48px 24px;
+  color: #78716c;
+  font-size: 14px;
+}
+
+.ab-history-empty-icon {
+  opacity: 0.25;
+  margin-bottom: 8px;
+}
+
+.ab-history-empty-sub {
+  font-size: 13px;
+  color: #a8a29e;
+}
+
+.ab-history-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ab-history-item {
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  border: 1px solid rgba(39, 37, 30, 0.08);
+  border-radius: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.ab-history-item:hover {
+  background: #f5f4f0;
+  border-color: rgba(26, 127, 138, 0.2);
+}
+
+.ab-history-item-question {
+  font-size: 13px;
+  font-weight: 500;
+  color: #27251e;
+  margin-bottom: 6px;
+  line-height: 1.4;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.ab-history-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #a8a29e;
+}
+
+/* History count badge on nav button */
+.ab-history-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 100px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(26, 127, 138, 0.12);
   color: #1a7f8a;
-  font-weight: 300;
-  animation: abBlink 0.8s step-end infinite;
-  margin-left: 1px;
-}
-
-@keyframes abBlink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  margin-left: 4px;
 }
 
 /* ==================== Ask Brooks — New Chat Button ==================== */
