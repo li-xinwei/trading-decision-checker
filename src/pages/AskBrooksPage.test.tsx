@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { AskBrooksPage } from './AskBrooksPage';
@@ -18,9 +18,22 @@ function renderPage() {
   );
 }
 
+// For tests that need to control async timers (mock delay + typewriter),
+// use fake timers with shouldAdvanceTime:true so React 18 scheduler & userEvent work.
+// After userEvent interactions complete, vi.advanceTimersByTime fires the component's timers.
+function setupWithFakeTimers() {
+  vi.useFakeTimers({ shouldAdvanceTime: true });
+  return userEvent.setup({ delay: null });  // delay:null means no between-key delays
+}
+
 describe('AskBrooksPage', () => {
   beforeEach(() => {
     mockNavigate.mockClear();
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   // ---------- Hero / Landing ----------
@@ -95,7 +108,6 @@ describe('AskBrooksPage', () => {
     await user.type(input, 'What is a trend bar?');
     await user.click(screen.getByText('→'));
 
-    // User message should appear
     expect(screen.getByText('What is a trend bar?')).toBeInTheDocument();
   });
 
@@ -116,36 +128,36 @@ describe('AskBrooksPage', () => {
     const input = screen.getByPlaceholderText(/ask about price action/i);
     await user.type(input, 'test question{enter}');
 
-    // After submit, hero disappears and chat input appears
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText(/ask a follow-up/i)).toBeInTheDocument();
-    });
+    // User message is added synchronously; chat view appears immediately
+    expect(screen.getByPlaceholderText(/ask a follow-up/i)).toBeInTheDocument();
   });
 
   it('shows mock response after submission (no API configured)', async () => {
-    const user = userEvent.setup();
+    const user = setupWithFakeTimers();
     renderPage();
 
     const input = screen.getByPlaceholderText(/ask about price action/i);
     await user.type(input, 'What is a breakout?{enter}');
 
-    // Wait for mock response (1.5s delay)
-    await waitFor(
-      () => {
-        expect(screen.getByRole('heading', { name: /Strong Breakout/i })).toBeInTheDocument();
-      },
-      { timeout: 3000 }
-    );
+    // Advance past 1.5s mock delay
+    await act(async () => { vi.advanceTimersByTime(2000); });
+    // Drive the typewriter chain by repeatedly advancing 18ms at a time
+    // The heading is ~36 chars, so 36 steps × 18ms = 648ms of typewriter
+    for (let i = 0; i < 50; i++) {
+      await act(async () => { vi.advanceTimersByTime(18); });
+    }
+
+    expect(screen.getByRole('heading', { name: /Strong Breakout/i })).toBeInTheDocument();
   });
 
   it('shows typing indicator while loading', async () => {
-    const user = userEvent.setup();
+    const user = setupWithFakeTimers();
     renderPage();
 
     const input = screen.getByPlaceholderText(/ask about price action/i);
     await user.type(input, 'test{enter}');
 
-    // Typing indicator should be visible during loading
+    // Typing indicator visible immediately (mock 1.5s delay not elapsed yet)
     const dots = document.querySelectorAll('.ab-typing span');
     expect(dots.length).toBe(3);
   });
@@ -160,7 +172,6 @@ describe('AskBrooksPage', () => {
       screen.getByText('How to identify a strong breakout?')
     );
 
-    // Should show user message
     expect(
       screen.getByText('How to identify a strong breakout?')
     ).toBeInTheDocument();
@@ -169,20 +180,21 @@ describe('AskBrooksPage', () => {
   // ---------- Chat view ----------
 
   it('shows sources in assistant response', async () => {
-    const user = userEvent.setup();
+    const user = setupWithFakeTimers();
     renderPage();
 
     const input = screen.getByPlaceholderText(/ask about price action/i);
     await user.type(input, 'What is a breakout?{enter}');
 
-    await waitFor(
-      () => {
-        expect(
-          screen.getByText('Trading Price Action Trends')
-        ).toBeInTheDocument();
-      },
-      { timeout: 3000 }
-    );
+    // Advance past 1.5s mock delay
+    await act(async () => { vi.advanceTimersByTime(2000); });
+    // Drive the typewriter chain 18ms at a time. The mock response is ~700 chars,
+    // so ~700 steps at 18ms = 12.6s. Advance 800 steps to fully complete typing.
+    for (let i = 0; i < 800; i++) {
+      await act(async () => { vi.advanceTimersByTime(18); });
+    }
+
+    expect(screen.getByText('Trading Price Action Trends')).toBeInTheDocument();
   });
 
   it('shows follow-up input in chat mode', async () => {
@@ -192,10 +204,7 @@ describe('AskBrooksPage', () => {
     const input = screen.getByPlaceholderText(/ask about price action/i);
     await user.type(input, 'test{enter}');
 
-    await waitFor(() => {
-      expect(
-        screen.getByPlaceholderText(/ask a follow-up/i)
-      ).toBeInTheDocument();
-    });
+    // User message added synchronously → chat view with follow-up input appears
+    expect(screen.getByPlaceholderText(/ask a follow-up/i)).toBeInTheDocument();
   });
 });

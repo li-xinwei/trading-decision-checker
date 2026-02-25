@@ -96,11 +96,13 @@ app.add_middleware(
 
 class AskRequest(BaseModel):
     question: str
+    conversation_id: str | None = None
 
 
 class AskResponse(BaseModel):
     answer: str
     sources: list[str]
+    conversation_id: str
 
 
 # ---------- Routes ----------
@@ -119,10 +121,15 @@ async def ask(req: AskRequest):
 
     try:
         client = await get_nlm_client()
-        result = await client.chat.ask(NOTEBOOK_ID, question)
+        result = await client.chat.ask(
+            NOTEBOOK_ID,
+            question,
+            conversation_id=req.conversation_id,
+        )
 
         return AskResponse(
             answer=result.answer,
+            conversation_id=result.conversation_id,
             sources=[
                 "Trading Price Action Trends",
                 "Trading Price Action Reversals",

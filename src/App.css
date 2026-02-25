@@ -2733,6 +2733,83 @@
   30% { transform: translateY(-6px); opacity: 1; }
 }
 
+/* ==================== Ask Brooks — Citation Tooltips ==================== */
+
+.ab-citation {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  vertical-align: super;
+  cursor: default;
+  background: rgba(26, 127, 138, 0.10);
+  color: #1a7f8a;
+  border: 1px solid rgba(26, 127, 138, 0.18);
+  position: relative;
+  transition: background 0.15s;
+  user-select: none;
+}
+
+.ab-citation:hover {
+  background: rgba(26, 127, 138, 0.18);
+}
+
+/* Custom CSS tooltip shown on hover */
+.ab-citation::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  max-width: 220px;
+  white-space: normal;
+  background: #27251e;
+  color: #f5f4f0;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  padding: 6px 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 200;
+}
+
+.ab-citation:hover::after {
+  opacity: 1;
+}
+
+/* ==================== Ask Brooks — Typewriter Cursor ==================== */
+
+.ab-cursor {
+  display: inline-block;
+  color: #1a7f8a;
+  font-weight: 300;
+  animation: abBlink 0.8s step-end infinite;
+  margin-left: 1px;
+}
+
+@keyframes abBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ==================== Ask Brooks — New Chat Button ==================== */
+
+.ab-nav-link--new {
+  color: #1a7f8a;
+  font-weight: 500;
+}
+
 /* Chat input at bottom */
 .ab-chat-input-wrap {
   padding: 16px 32px 24px;
