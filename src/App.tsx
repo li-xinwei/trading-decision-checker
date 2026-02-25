@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AskBrooksPage } from './pages/AskBrooksPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { CheckPage } from './pages/CheckPage';
 import { SystemEditorPage } from './pages/SystemEditorPage';
@@ -11,7 +12,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<DashboardPage />} />
+        <Route path="/" element={<AskBrooksPage />} />
+        <Route path="/tools" element={<DashboardPage />} />
         <Route path="/check" element={<CheckPage />} />
         <Route path="/system" element={<SystemEditorPage />} />
         <Route path="/session/:id" element={<SessionPage />} />

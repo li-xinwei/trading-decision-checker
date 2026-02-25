@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: ask-brooks-api
+    runtime: docker
+    rootDir: api
+    plan: free
+    envVars:
+      - key: NOTEBOOKLM_STORAGE_B64
+        sync: false
+      - key: NOTEBOOKLM_NOTEBOOK_ID
+        sync: false
+      - key: CORS_ORIGINS
+        value: https://kentrades.com
+      - key: PORT
+        value: "8000"

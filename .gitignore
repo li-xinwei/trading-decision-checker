@@ -25,4 +25,11 @@ dist-ssr
 .vercel
 .env
 .env.*
+!.env.example
 sync.log
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+storage_state.json
