@@ -11,7 +11,7 @@ Trading Portal — 包含 Chrome 扩展 (TradingView 按钮锁定) 和 Web App (
 ```
 src/                                # React + Vite Web App
 ├── pages/
-│   ├── AskBrooksPage.tsx          # 🆕 AI Q&A 落地页 (Perplexity 风格)
+│   ├── AskBrooksPage.tsx          # AI Q&A 落地页 (Perplexity 风格)
 │   ├── DashboardPage.tsx          # 工具仪表盘 (/tools)
 │   ├── CheckPage.tsx              # 决策树检查
 │   ├── SessionPage.tsx            # 交易 Session
@@ -25,10 +25,11 @@ src/                                # React + Vite Web App
 ├── types/                         # TypeScript 类型
 └── test/                          # 测试配置
 
-api/                                # 🆕 Python API (FastAPI)
+api/                                # Python API (FastAPI)
 ├── main.py                        # FastAPI 服务 + NotebookLM 集成
 ├── requirements.txt               # Python 依赖
-├── Dockerfile                     # Docker 部署配置
+├── Dockerfile                     # Docker 部署配置 (Render)
+├── render.yaml                    # Render 部署配置
 ├── .env.example                   # 环境变量模板
 └── README.md                      # API 使用文档
 
@@ -65,9 +66,12 @@ extension/                          # Chrome 扩展 (MV3)
   - `GET /health` — 健康检查
   - CORS 配置支持前端跨域
   - NotebookLM 客户端懒初始化 + 单例模式
+  - 支持 `NOTEBOOKLM_STORAGE_B64` 环境变量 (base64 编码的 storage_state.json)
 - [x] **api/Dockerfile** — Docker 部署配置 (Python 3.12 + Playwright)
+  - 动态端口: `${PORT:-8000}`
 - [x] **api/requirements.txt** — FastAPI, uvicorn, notebooklm-py, pydantic
 - [x] **api/.env.example** — 环境变量模板
+- [x] **api/render.yaml** — Render 部署配置
 
 ### 测试 (2026-02-24)
 - [x] **AskBrooksPage.test.tsx** — 16 个测试用例
@@ -84,6 +88,13 @@ extension/                          # Chrome 扩展 (MV3)
   - 自定义域名: `kentrades.com`
   - SPA 路由: `vercel.json` rewrites 配置
   - 自动构建: `npm run build` → `dist/`
+  - 环境变量: `VITE_ASK_BROOKS_API_URL=https://trading-decision-checker.onrender.com`
+- [x] **Render 部署** — Python API 已部署到生产环境
+  - URL: `https://trading-decision-checker.onrender.com`
+  - Docker runtime (Python 3.12 + Playwright + Chromium)
+  - 环境变量: `NOTEBOOKLM_STORAGE_B64`, `NOTEBOOKLM_NOTEBOOK_ID`, `CORS_ORIGINS`, `PORT`
+  - NotebookLM Notebook: Trading Price Action (Al Brooks 三本书)
+  - ⚠️ Google cookies 会过期 (约数周)，需要本地重新 `notebooklm login` 并更新 `NOTEBOOKLM_STORAGE_B64`
 
 ### Chrome 扩展 — 核心功能
 - [x] 决策树引擎 (decisionEngine.ts)
@@ -120,10 +131,6 @@ extension/                          # Chrome 扩展 (MV3)
 ## 待完成 TODO 🔲
 
 ### 高优先级
-- [ ] **部署 Ask Brooks Python API** — 需要部署到 Railway/Render，配置 NotebookLM 登录
-  - 运行 `python -m notebooklm login` 生成 `storage_state.json`
-  - 设置环境变量 `NOTEBOOKLM_NOTEBOOK_URL`
-  - 在 Vercel 设置 `VITE_ASK_BROOKS_API_URL` 指向 API 地址
 - [ ] **测试 CrossTrade API 连接** — 需要 NinjaTrader 8 运行
 - [ ] **Secret Key 安全** — 重新生成 CrossTrade key
 
@@ -131,6 +138,7 @@ extension/                          # Chrome 扩展 (MV3)
 - [ ] CrossTrade API 响应格式验证
 - [ ] 错误处理优化 — API 408 用户提示
 - [ ] 按钮锁定在 TradingView 动态 DOM 变更时的稳定性
+- [ ] Ask Brooks API 添加对话历史支持 (conversation_id)
 
 ### 低优先级
 - [ ] `extension.crx` / `extension.pem` 加入 .gitignore
@@ -146,10 +154,12 @@ extension/                          # Chrome 扩展 (MV3)
 - **路由**: `/` Ask Brooks, `/tools` 工具仪表盘, `/session/:id`, `/system`, `/summary`, `/analytics`
 - **环境变量**: `VITE_ASK_BROOKS_API_URL` (API 地址), `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_OPENAI_API_KEY`
 
-### Ask Brooks API (待部署)
+### Ask Brooks API (Render)
+- **URL**: `https://trading-decision-checker.onrender.com`
 - **框架**: FastAPI + notebooklm-py
-- **端口**: 8000
-- **环境变量**: `NOTEBOOKLM_STORAGE_STATE`, `NOTEBOOKLM_NOTEBOOK_URL`, `CORS_ORIGINS`, `PORT`
+- **Runtime**: Docker (Python 3.12 + Playwright)
+- **环境变量**: `NOTEBOOKLM_STORAGE_B64`, `NOTEBOOKLM_NOTEBOOK_ID`, `CORS_ORIGINS`, `PORT`
+- **Cookies 刷新**: 本地运行 `notebooklm login`，然后 `base64 -i ~/.notebooklm/storage_state.json | tr -d '\n'` 更新 Render 环境变量
 
 ### CrossTrade API
 - **Base URL**: `https://app.crosstrade.io/v1/api`
