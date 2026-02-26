@@ -248,7 +248,7 @@ export function LogAnalyticsPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(118,118,128,0.12)" />
                   <XAxis dataKey="date" tick={{ fill: '#636366', fontSize: 10 }} stroke="rgba(118,118,128,0.2)" />
                   <YAxis tick={{ fill: '#636366', fontSize: 10 }} stroke="rgba(118,118,128,0.2)" tickFormatter={(v) => `$${v}`} />
-                  <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`$${v}`, 'Cumulative']} />
+                  <Tooltip contentStyle={tooltipStyle} formatter={(v: number | undefined) => [`$${v ?? 0}`, 'Cumulative']} />
                   <ReferenceLine y={0} stroke="rgba(118,118,128,0.3)" />
                   <Line type="monotone" dataKey="pnl" stroke="#3b82f6" strokeWidth={2} dot={false} />
                 </LineChart>
@@ -263,7 +263,7 @@ export function LogAnalyticsPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(118,118,128,0.12)" />
                   <XAxis dataKey="date" tick={{ fill: '#636366', fontSize: 10 }} stroke="rgba(118,118,128,0.2)" />
                   <YAxis tick={{ fill: '#636366', fontSize: 10 }} stroke="rgba(118,118,128,0.2)" tickFormatter={(v) => `$${v}`} />
-                  <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`$${v}`, 'Net P/L']} />
+                  <Tooltip contentStyle={tooltipStyle} formatter={(v: number | undefined) => [`$${v ?? 0}`, 'Net P/L']} />
                   <ReferenceLine y={0} stroke="rgba(118,118,128,0.3)" />
                   <Bar
                     dataKey="pnl"
