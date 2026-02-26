@@ -73,9 +73,8 @@ describe('AskBrooksPage', () => {
 
   it('renders nav links', () => {
     renderPage();
-    expect(screen.getByText('Session')).toBeInTheDocument();
-    expect(screen.getByText('System')).toBeInTheDocument();
-    expect(screen.getByText('Summary')).toBeInTheDocument();
+    expect(screen.getByText('Tools')).toBeInTheDocument();
+    expect(screen.getByText('Logs')).toBeInTheDocument();
     expect(screen.getByText('Analytics')).toBeInTheDocument();
   });
 
@@ -84,18 +83,18 @@ describe('AskBrooksPage', () => {
     expect(screen.getByText(/History/i)).toBeInTheDocument();
   });
 
-  it('navigates to session page when Session link clicked', async () => {
+  it('navigates to tools page when Tools link clicked', async () => {
     const user = userEvent.setup();
     renderPage();
-    await user.click(screen.getByText('Session'));
-    expect(mockNavigate).toHaveBeenCalledWith('/session/new');
+    await user.click(screen.getByText('Tools'));
+    expect(mockNavigate).toHaveBeenCalledWith('/tools');
   });
 
-  it('navigates to system page when System link clicked', async () => {
+  it('navigates to logs page when Logs link clicked', async () => {
     const user = userEvent.setup();
     renderPage();
-    await user.click(screen.getByText('System'));
-    expect(mockNavigate).toHaveBeenCalledWith('/system');
+    await user.click(screen.getByText('Logs'));
+    expect(mockNavigate).toHaveBeenCalledWith('/logs');
   });
 
   it('navigates to analytics page when Analytics link clicked', async () => {

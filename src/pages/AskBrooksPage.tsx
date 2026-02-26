@@ -411,9 +411,8 @@ export function AskBrooksPage() {
           {hasConversation && (
             <button className="ab-nav-link ab-nav-link--new" onClick={handleNewChat}>New chat</button>
           )}
-          <button className="ab-nav-link" onClick={() => navigate('/session/new')}>Session</button>
-          <button className="ab-nav-link" onClick={() => navigate('/system')}>System</button>
-          <button className="ab-nav-link" onClick={() => navigate('/summary')}>Summary</button>
+          <button className="ab-nav-link" onClick={() => navigate('/tools')}>Tools</button>
+          <button className="ab-nav-link" onClick={() => navigate('/logs')}>Logs</button>
           <button className="ab-nav-link" onClick={() => navigate('/analytics')}>Analytics</button>
         </div>
       </nav>
